@@ -18,6 +18,7 @@
 		A1C0FFEE0000001100000000 /* Cosmetics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000100000000 /* Cosmetics.swift */; };
 		A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000200000000 /* EntitlementStore.swift */; };
 		A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000300000000 /* CustomizeScene.swift */; };
+		A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000400000000 /* StoreManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		A1C0FFEE0000000100000000 /* Cosmetics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cosmetics.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000200000000 /* EntitlementStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementStore.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000300000000 /* CustomizeScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizeScene.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000400000000 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +78,7 @@
 				31F434EE2CEB440C00D39AF8 /* MainMenu.swift */,
 				A1C0FFEE0000000300000000 /* CustomizeScene.swift */,
 				A1C0FFEE0000000200000000 /* EntitlementStore.swift */,
+				A1C0FFEE0000000400000000 /* StoreManager.swift */,
 				A1C0FFEE0000000100000000 /* Cosmetics.swift */,
 				31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */,
 				319991352CAA41C100DAB94F /* Assets.xcassets */,
@@ -170,6 +173,7 @@
 				31F434EF2CEB440C00D39AF8 /* MainMenu.swift in Sources */,
 				A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */,
 				A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */,
+				A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */,
 				A1C0FFEE0000001100000000 /* Cosmetics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

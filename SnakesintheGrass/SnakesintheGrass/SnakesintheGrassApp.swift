@@ -11,6 +11,12 @@ import SwiftUI
 struct SnakesintheGrassApp: App {
     @Environment(\.scenePhase) private var scenePhase
 
+    init() {
+        // Listen for transactions for the app's whole lifetime and restore
+        // ownership from Transaction.currentEntitlements.
+        StoreManager.shared.start()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

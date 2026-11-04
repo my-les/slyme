@@ -4,10 +4,9 @@
 //
 //  Who owns what, and what's selected. UserDefaults-backed for now.
 //
-//  STOREKIT PLUGS IN HERE: replace `unlockedIDs` persistence with
-//  StoreKit 2 `Transaction.currentEntitlements` (map product IDs -> item IDs
-//  via `productID(for:)`), and call `grant(_:)` from the purchase flow.
-//  Nothing else in the app needs to change.
+//  StoreKit 2 lives in StoreManager. It reports the verified product ids the
+//  player owns via `applyStoreEntitlements(_:)`; this file is the single
+//  source of truth for product ids and what each product unlocks.
 //
 
 import Foundation
@@ -62,6 +61,10 @@ final class EntitlementStore {
         return isUnlocked(tier: map.tier, key: "map.\(mapID)")
     }
 
+    /// Owned through a purchase (ignores free tier and debug unlock-all).
+    func isOwnedViaStore(skinID: String) -> Bool { unlockedIDs.contains("skin.\(skinID)") }
+    func isOwnedViaStore(mapID: String) -> Bool { unlockedIDs.contains("map.\(mapID)") }
+
     private func isUnlocked(tier: CosmeticTier, key: String) -> Bool {
         if tier == .free { return true }
         #if DEBUG
@@ -70,13 +73,59 @@ final class EntitlementStore {
         return unlockedIDs.contains(key)
     }
 
-    /// Single entry point for granting items (future: StoreKit transaction handler).
+    /// Grant one item locally (used after a verified purchase, before the
+    /// full entitlement refresh lands).
     func grant(skinID: String) { unlockedIDs.insert("skin.\(skinID)") }
     func grant(mapID: String) { unlockedIDs.insert("map.\(mapID)") }
 
-    /// Suggested App Store product IDs (not live yet).
-    static func productID(skinID: String) -> String { "com.ysdwysd.skin.\(skinID)" }
-    static func productID(mapID: String) -> String { "com.ysdwysd.map.\(mapID)" }
+    /// Replace ownership with what StoreKit says the player owns (verified,
+    /// non-revoked `Transaction.currentEntitlements`). Packs expand to items.
+    /// Refunded/revoked products disappear here too.
+    func applyStoreEntitlements(_ productIDs: Set<String>) {
+        var keys = Set<String>()
+        for pid in productIDs { keys.formUnion(Self.itemKeys(forProductID: pid)) }
+        if keys != unlockedIDs { unlockedIDs = keys }
+    }
+
+    // MARK: Product ids (single source of truth)
+
+    static let productPrefix = "com.ysdwysd."
+    static let packSkinsID = productPrefix + "pack.skins"
+    static let packMapsID = productPrefix + "pack.maps"
+    static let packEverythingID = productPrefix + "pack.everything"
+
+    static func productID(skinID: String) -> String { productPrefix + "skin.\(skinID)" }
+    static func productID(mapID: String) -> String { productPrefix + "map.\(mapID)" }
+
+    static var premiumSkins: [Skin] { SkinCatalog.all.filter { $0.tier == .premium } }
+    static var premiumMaps: [GameMap] { MapCatalog.all.filter { $0.tier == .premium } }
+
+    /// Every product the app sells, singles first, then packs.
+    static var allProductIDs: [String] {
+        premiumSkins.map { productID(skinID: $0.id) }
+            + premiumMaps.map { productID(mapID: $0.id) }
+            + [packSkinsID, packMapsID, packEverythingID]
+    }
+
+    /// Ownership keys ("skin.gold", "map.box") a product unlocks.
+    static func itemKeys(forProductID pid: String) -> Set<String> {
+        let skins = Set(premiumSkins.map { "skin.\($0.id)" })
+        let maps = Set(premiumMaps.map { "map.\($0.id)" })
+        switch pid {
+        case packSkinsID: return skins
+        case packMapsID: return maps
+        case packEverythingID: return skins.union(maps)
+        default:
+            guard pid.hasPrefix(productPrefix) else { return [] }
+            let key = String(pid.dropFirst(productPrefix.count))
+            return skins.contains(key) || maps.contains(key) ? [key] : []
+        }
+    }
+
+    /// Packs that cover an item, smallest first ("pack.skins" then "pack.everything").
+    static func packIDs(covering key: String) -> [String] {
+        [packSkinsID, packMapsID, packEverythingID].filter { itemKeys(forProductID: $0).contains(key) }
+    }
 
     // MARK: Selection (falls back to defaults if locked or removed)
 
