@@ -222,6 +222,11 @@ final class CustomizeScene: SKScene {
         build()
     }
 
+    #if DEBUG
+    /// Testing/screenshots only.
+    func debugShowSheet(_ key: String) { openSheet(key) }
+    #endif
+
     private func closeSheet() {
         sheetKey = nil
         sheetMessage = nil

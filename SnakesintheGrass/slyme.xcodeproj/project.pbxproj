@@ -19,7 +19,19 @@
 		A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000200000000 /* EntitlementStore.swift */; };
 		A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000300000000 /* CustomizeScene.swift */; };
 		A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000400000000 /* StoreManager.swift */; };
+		B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000100000000 /* StoreTests.swift */; };
+		B2C0FFEE0000001200000000 /* slyme.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000200000000 /* slyme.storekit */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B2C0FFEE0000002100000000 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 319991262CAA41BE00DAB94F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3199912D2CAA41BE00DAB94F;
+			remoteInfo = slyme;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		31580C8C2D164114004C33A6 /* slyme-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "slyme-Info.plist"; sourceTree = "<group>"; };
@@ -37,10 +49,20 @@
 		A1C0FFEE0000000200000000 /* EntitlementStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementStore.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000300000000 /* CustomizeScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizeScene.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000400000000 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		B2C0FFEE0000000100000000 /* StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTests.swift; sourceTree = "<group>"; };
+		B2C0FFEE0000000200000000 /* slyme.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = slyme.storekit; sourceTree = "<group>"; };
+		B2C0FFEE0000000300000000 /* slymeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = slymeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3199912B2CAA41BE00DAB94F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2C0FFEE0000003100000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -55,6 +77,8 @@
 			children = (
 				31580C8D2D164370004C33A6 /* slyme.entitlements */,
 				31580C8C2D164114004C33A6 /* slyme-Info.plist */,
+				B2C0FFEE0000000200000000 /* slyme.storekit */,
+				B2C0FFEE0000004000000000 /* slymeTests */,
 				319991302CAA41BE00DAB94F /* SnakesintheGrass */,
 				3199912F2CAA41BE00DAB94F /* Products */,
 			);
@@ -64,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				3199912E2CAA41BE00DAB94F /* slyme.app */,
+				B2C0FFEE0000000300000000 /* slymeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +120,14 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		B2C0FFEE0000004000000000 /* slymeTests */ = {
+			isa = PBXGroup;
+			children = (
+				B2C0FFEE0000000100000000 /* StoreTests.swift */,
+			);
+			path = slymeTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -115,6 +148,24 @@
 			productReference = 3199912E2CAA41BE00DAB94F /* slyme.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B2C0FFEE0000005000000000 /* slymeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B2C0FFEE0000006000000000 /* Build configuration list for PBXNativeTarget "slymeTests" */;
+			buildPhases = (
+				B2C0FFEE0000003000000000 /* Sources */,
+				B2C0FFEE0000003100000000 /* Frameworks */,
+				B2C0FFEE0000003200000000 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B2C0FFEE0000002200000000 /* PBXTargetDependency */,
+			);
+			name = slymeTests;
+			productName = slymeTests;
+			productReference = B2C0FFEE0000000300000000 /* slymeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -127,6 +178,10 @@
 				TargetAttributes = {
 					3199912D2CAA41BE00DAB94F = {
 						CreatedOnToolsVersion = 15.4;
+					};
+					B2C0FFEE0000005000000000 = {
+						CreatedOnToolsVersion = 27.2;
+						TestTargetID = 3199912D2CAA41BE00DAB94F;
 					};
 				};
 			};
@@ -144,6 +199,7 @@
 			projectRoot = "";
 			targets = (
 				3199912D2CAA41BE00DAB94F /* slyme */,
+				B2C0FFEE0000005000000000 /* slymeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -156,6 +212,14 @@
 				31B1ECAF2D161E66000C9C1D /* Launch Screen.storyboard in Resources */,
 				319991392CAA41C100DAB94F /* Preview Assets.xcassets in Resources */,
 				319991362CAA41C100DAB94F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2C0FFEE0000003200000000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2C0FFEE0000001200000000 /* slyme.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -178,7 +242,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B2C0FFEE0000003000000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B2C0FFEE0000002200000000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3199912D2CAA41BE00DAB94F /* slyme */;
+			targetProxy = B2C0FFEE0000002100000000 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3199913A2CAA41C100DAB94F /* Debug */ = {
@@ -364,6 +444,44 @@
 			};
 			name = Release;
 		};
+		B2C0FFEE0000006100000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PJNZT4YR2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ysdwysd.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/slyme.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/slyme";
+			};
+			name = Debug;
+		};
+		B2C0FFEE0000006200000000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7PJNZT4YR2;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ysdwysd.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/slyme.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/slyme";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -381,6 +499,15 @@
 			buildConfigurations = (
 				3199913D2CAA41C100DAB94F /* Debug */,
 				3199913E2CAA41C100DAB94F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B2C0FFEE0000006000000000 /* Build configuration list for PBXNativeTarget "slymeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B2C0FFEE0000006100000000 /* Debug */,
+				B2C0FFEE0000006200000000 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

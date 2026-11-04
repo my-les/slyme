@@ -1,0 +1,184 @@
+{
+  "identifier": "96FC57C4-7958-40B9-9AB8-0B1DD84F6A04",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6700000000",
+      "localizations": [
+        {
+          "description": "Bright cyan snake skin.",
+          "displayName": "duo blue skin",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.skin.duo",
+      "referenceName": "duo blue skin",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6700000001",
+      "localizations": [
+        {
+          "description": "Gold snake skin.",
+          "displayName": "gold skin",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.skin.gold",
+      "referenceName": "gold skin",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6700000002",
+      "localizations": [
+        {
+          "description": "See-through ghost snake skin.",
+          "displayName": "ghost skin",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.skin.ghost",
+      "referenceName": "ghost skin",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6700000003",
+      "localizations": [
+        {
+          "description": "Deep indigo snake skin.",
+          "displayName": "indigo skin",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.skin.indigo",
+      "referenceName": "indigo skin",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6700000004",
+      "localizations": [
+        {
+          "description": "Map with pillars to dodge.",
+          "displayName": "pillars map",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.map.pillars",
+      "referenceName": "pillars map",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6700000005",
+      "localizations": [
+        {
+          "description": "Walled map: hitting the edge ends the run.",
+          "displayName": "box map",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.map.box",
+      "referenceName": "box map",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6700000006",
+      "localizations": [
+        {
+          "description": "Map with a cross of blocks in the middle.",
+          "displayName": "cross map",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.map.cross",
+      "referenceName": "cross map",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "1.99",
+      "familyShareable": false,
+      "internalID": "6700000007",
+      "localizations": [
+        {
+          "description": "Fenced yard: hitting the edge ends the run.",
+          "displayName": "yard map",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.map.yard",
+      "referenceName": "yard map",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "2.99",
+      "familyShareable": false,
+      "internalID": "6700000008",
+      "localizations": [
+        {
+          "description": "Unlocks every paid skin.",
+          "displayName": "all skins",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.pack.skins",
+      "referenceName": "all skins",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "3.99",
+      "familyShareable": false,
+      "internalID": "6700000009",
+      "localizations": [
+        {
+          "description": "Unlocks every paid map.",
+          "displayName": "all maps",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.pack.maps",
+      "referenceName": "all maps",
+      "type": "NonConsumable"
+    },
+    {
+      "displayPrice": "5.99",
+      "familyShareable": false,
+      "internalID": "6700000010",
+      "localizations": [
+        {
+          "description": "Unlocks every paid skin and map.",
+          "displayName": "everything",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.pack.everything",
+      "referenceName": "everything",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_applicationInternalID": "",
+    "_developerTeamID": "7PJNZT4YR2",
+    "_failTransactionsEnabled": false,
+    "_locale": "en_US",
+    "_storefront": "USA",
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}
