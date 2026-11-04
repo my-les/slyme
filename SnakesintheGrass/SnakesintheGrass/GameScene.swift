@@ -339,9 +339,16 @@ class GameScene: SKScene {
         // Same start cell as before (60% across, 70% up), unless the map blocks it.
         snake.insert(startCell(), at: 0)
         #if DEBUG
-        // Testing only (screenshots): start with a longer snake trailing left.
+        // Testing only (screenshots): start with a longer snake trailing left,
+        // with a couple of bends so the curve pieces show.
         if ProcessInfo.processInfo.arguments.contains("-slymeLongSnake"), let h = snake.first {
-            for i in 1...5 where h.0 - i >= 0 && !isBlocked((h.0 - i, h.1)) { snake.append((h.0 - i, h.1)) }
+            let path = [(-1, 0), (-2, 0), (-3, 0), (-3, -1), (-3, -2), (-4, -2), (-5, -2),
+                        (-5, -1), (-5, 0), (-6, 0), (-7, 0), (-8, 0)]
+            for (dx, dy) in path {
+                let c = (h.0 + dx, h.1 + dy)
+                guard c.0 >= 0, c.1 >= 0, !isBlocked(c) else { break }
+                snake.append(c)
+            }
         }
         #endif
         spawnFood()
@@ -495,6 +502,10 @@ class GameScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
+        #if DEBUG
+        // Testing only (screenshots): hold the snake still.
+        if ProcessInfo.processInfo.arguments.contains("-slymeFreeze") { return }
+        #endif
         if !isGameOver && !isPausedGame && !isPaused && currentTime > nextMoveTime {
             moveSnake()
             nextMoveTime = currentTime + moveSpeed

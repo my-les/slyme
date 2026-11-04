@@ -23,7 +23,7 @@ struct ContentView: View {
     #if DEBUG
     /// Testing only. Launch arguments:
     ///   -slymeUnlockAll YES|NO   -slymeSkin <id>   -slymeMap <id>
-    ///   -slymeStart game|skins|maps   -slymeLongSnake
+    ///   -slymeStart game|skins|maps   -slymeLongSnake   -slymeFreeze
     private static func debugLaunchScene() -> SKScene? {
         let d = UserDefaults.standard // launch args land in the argument domain
         let store = EntitlementStore.shared
