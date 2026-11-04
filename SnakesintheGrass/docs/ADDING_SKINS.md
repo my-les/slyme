@@ -46,4 +46,6 @@ image. Pieces must tile edge to edge and keep the og orientation (look at the og
 
 Premium skins sell as non-consumables with product id `com.ysdwysd.skin.<id>`
 (`EntitlementStore.productID(skinID:)`). Create the matching product in App Store Connect.
-Maps use `com.ysdwysd.map.<id>`.
+Maps use `com.ysdwysd.map.<id>`. Also add the product to `slyme.storekit` for local testing.
+The skins/maps/everything packs automatically cover any new premium item. See
+`docs/APP_STORE_CONNECT_IAP.md`.
