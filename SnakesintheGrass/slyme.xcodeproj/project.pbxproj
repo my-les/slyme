@@ -21,6 +21,10 @@
 		A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000400000000 /* StoreManager.swift */; };
 		B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000100000000 /* StoreTests.swift */; };
 		B2C0FFEE0000001200000000 /* slyme.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000200000000 /* slyme.storekit */; };
+		A1C0FFEE0000001500000000 /* TwoPlayerRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */; };
+		A1C0FFEE0000001600000000 /* TwoPlayerScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000600000000 /* TwoPlayerScene.swift */; };
+		A1C0FFEE0000001700000000 /* TwoPlayerSetupScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */; };
+		B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +56,10 @@
 		B2C0FFEE0000000100000000 /* StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTests.swift; sourceTree = "<group>"; };
 		B2C0FFEE0000000200000000 /* slyme.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = slyme.storekit; sourceTree = "<group>"; };
 		B2C0FFEE0000000300000000 /* slymeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = slymeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerRules.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000600000000 /* TwoPlayerScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerScene.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerSetupScene.swift; sourceTree = "<group>"; };
+		B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerRulesTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +110,9 @@
 				31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */,
 				31F434EE2CEB440C00D39AF8 /* MainMenu.swift */,
 				A1C0FFEE0000000300000000 /* CustomizeScene.swift */,
+				A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */,
+				A1C0FFEE0000000600000000 /* TwoPlayerScene.swift */,
+				A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */,
 				A1C0FFEE0000000200000000 /* EntitlementStore.swift */,
 				A1C0FFEE0000000400000000 /* StoreManager.swift */,
 				A1C0FFEE0000000100000000 /* Cosmetics.swift */,
@@ -124,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				B2C0FFEE0000000100000000 /* StoreTests.swift */,
+				B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */,
 			);
 			path = slymeTests;
 			sourceTree = "<group>";
@@ -236,6 +248,9 @@
 				31F434F32CEB47A700D39AF8 /* GameCenterManager.swift in Sources */,
 				31F434EF2CEB440C00D39AF8 /* MainMenu.swift in Sources */,
 				A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */,
+				A1C0FFEE0000001700000000 /* TwoPlayerSetupScene.swift in Sources */,
+				A1C0FFEE0000001600000000 /* TwoPlayerScene.swift in Sources */,
+				A1C0FFEE0000001500000000 /* TwoPlayerRules.swift in Sources */,
 				A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */,
 				A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */,
 				A1C0FFEE0000001100000000 /* Cosmetics.swift in Sources */,
@@ -247,6 +262,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */,
+				B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
