@@ -134,12 +134,12 @@ final class CustomizeScene: SKScene {
             dot.position = CGPoint(x: 0, y: -frame.height / 2 + 6)
             root.addChild(dot)
         }
-        if locked, let img = UIImage(systemName: "lock.fill")?
-            .withTintColor(Palette.paper, renderingMode: .alwaysOriginal) {
+        if locked, let img = CustomizeScene.lockImage {
+            // Small lock beside the name; the preview stays readable.
             let lock = SKSpriteNode(texture: SKTexture(image: img))
-            let s: CGFloat = 18
+            let s: CGFloat = 12
             lock.size = CGSize(width: s * img.size.width / max(1, img.size.height), height: s)
-            lock.position = CGPoint(x: 0, y: 14)
+            lock.position = CGPoint(x: title.frame.maxX + 12, y: title.position.y)
             lock.zPosition = 5
             root.addChild(lock)
         }
@@ -177,6 +177,17 @@ final class CustomizeScene: SKScene {
                     selected: store.selectedMap.id == map.id,
                     locked: !store.isUnlocked(mapID: map.id), preview: preview, in: frame)
     }
+
+    /// SF Symbol lock rasterized in paper ink (tint isn't honored by SKTexture directly).
+    private static let lockImage: UIImage? = {
+        let config = UIImage.SymbolConfiguration(pointSize: 40, weight: .semibold)
+        guard let symbol = UIImage(systemName: "lock.fill", withConfiguration: config) else { return nil }
+        let renderer = UIGraphicsImageRenderer(size: symbol.size)
+        return renderer.image { _ in
+            symbol.withTintColor(UIColor(white: 1, alpha: 0.45), renderingMode: .alwaysOriginal)
+                .draw(in: CGRect(origin: .zero, size: symbol.size))
+        }
+    }()
 
     // MARK: Input
 
