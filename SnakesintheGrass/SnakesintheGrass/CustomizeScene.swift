@@ -19,6 +19,13 @@ final class CustomizeScene: SKScene {
     private let font = "CourierNewPS-BoldMT"
     private let toast = SKLabelNode(fontNamed: "CourierNewPS-BoldMT")
     private let selection = UISelectionFeedbackGenerator()
+    private let shop = StoreManager.shared
+
+    /// Locked item the purchase sheet is showing ("skin.gold" / "map.box").
+    private var sheetKey: String?
+    private var sheetMessage: String?
+    private var busy = false
+    private var storeObserver: NSObjectProtocol?
 
     init(size: CGSize, page: Page = .skins) {
         self.page = page
@@ -30,7 +37,16 @@ final class CustomizeScene: SKScene {
     override func didMove(to view: SKView) {
         backgroundColor = .black
         selection.prepare()
+        storeObserver = NotificationCenter.default.addObserver(forName: .storeDidChange, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.build() }
+        }
+        if shop.products.isEmpty { Task { await shop.loadProducts() } }
         build()
+    }
+
+    override func willMove(from view: SKView) {
+        if let o = storeObserver { NotificationCenter.default.removeObserver(o) }
+        storeObserver = nil
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
@@ -74,15 +90,20 @@ final class CustomizeScene: SKScene {
 
         toast.fontSize = 14
         toast.fontColor = UIColor(white: 1, alpha: 0.45)
-        toast.position = CGPoint(x: r.midX, y: r.minY + 52)
+        toast.position = CGPoint(x: r.midX, y: r.minY + 78)
         toast.alpha = 0
         toast.text = ""
         addChild(toast)
 
+        let restore = label("restore purchases", size: 13, color: UIColor(white: 1, alpha: 0.45))
+        restore.position = CGPoint(x: r.midX, y: r.minY + 50)
+        restore.name = "restore"
+        addChild(restore)
+
         // Grid area between tabs and pager/toast.
         let skins = SkinCatalog.visible(owned: { store.isUnlocked(skinID: $0.id) })
         let count = page == .skins ? skins.count : MapCatalog.all.count
-        let grid = CGRect(x: r.minX, y: r.minY + 100, width: r.width, height: (tabsY - 28) - (r.minY + 100))
+        let grid = CGRect(x: r.minX, y: r.minY + 128, width: r.width, height: (tabsY - 28) - (r.minY + 128))
         let columns = grid.width >= 600 ? 4 : (grid.width >= 420 ? 3 : 2)
         let gap: CGFloat = 16
         let cellW = (grid.width - gap * CGFloat(columns - 1)) / CGFloat(columns)
@@ -109,7 +130,7 @@ final class CustomizeScene: SKScene {
         }
 
         if pageCount > 1 {
-            let y = r.minY + 80
+            let y = r.minY + 104
             let prev = label("<", size: 22, color: pageIndex > 0 ? Palette.paper : .darkGray)
             prev.position = CGPoint(x: r.midX - 70, y: y)
             prev.name = "page.prev"
@@ -121,6 +142,127 @@ final class CustomizeScene: SKScene {
             next.position = CGPoint(x: r.midX + 70, y: y)
             next.name = "page.next"
             addChild(next)
+        }
+
+        if let key = sheetKey { addChild(purchaseSheet(for: key, in: r)) }
+    }
+
+    // MARK: Purchase sheet
+
+    private func displayName(for key: String) -> String {
+        if key.hasPrefix("skin."), let s = SkinCatalog.skin(id: String(key.dropFirst(5))) { return s.name }
+        if key.hasPrefix("map."), let m = MapCatalog.map(id: String(key.dropFirst(4))) { return m.name }
+        return key
+    }
+
+    private func productID(for key: String) -> String {
+        key.hasPrefix("skin.") ? EntitlementStore.productID(skinID: String(key.dropFirst(5)))
+                               : EntitlementStore.productID(mapID: String(key.dropFirst(4)))
+    }
+
+    private func packTitle(_ pid: String) -> String {
+        switch pid {
+        case EntitlementStore.packSkinsID: return "unlock all skins"
+        case EntitlementStore.packMapsID: return "unlock all maps"
+        default: return "unlock everything"
+        }
+    }
+
+    private func priceText(_ pid: String) -> String {
+        if let p = shop.displayPrice(for: pid) { return p }
+        return shop.isLoading ? "..." : "--"
+    }
+
+    /// Small sheet over a dimmed screen: name, price, buy, pack offers, cancel.
+    private func purchaseSheet(for key: String, in r: CGRect) -> SKNode {
+        let root = SKNode()
+        root.zPosition = 100
+        let dim = SKSpriteNode(color: UIColor(white: 0, alpha: 0.75), size: size)
+        dim.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        dim.name = "sheet.dim"
+        root.addChild(dim)
+
+        let packs = EntitlementStore.packIDs(covering: key)
+        let w = min(r.width, 360)
+        let h: CGFloat = 230 + CGFloat(packs.count) * 34
+        let panel = SKSpriteNode(color: UIColor(white: 0.09, alpha: 1), size: CGSize(width: w, height: h))
+        panel.position = CGPoint(x: r.midX, y: r.midY)
+        panel.name = "sheet.panel"
+        root.addChild(panel)
+
+        let pid = productID(for: key)
+        var y = h / 2 - 40
+        func add(_ text: String, _ size: CGFloat, _ color: UIColor, _ name: String? = nil, gap: CGFloat) {
+            let l = label(text, size: size, color: color)
+            l.position = CGPoint(x: 0, y: y)
+            l.name = name ?? "sheet.panel"
+            panel.addChild(l)
+            y -= gap
+        }
+        let muted = UIColor(white: 1, alpha: 0.45)
+        add(displayName(for: key), 24, Palette.paper, gap: 28)
+        add(key.hasPrefix("skin.") ? "snake skin" : "map", 12, muted, gap: 44)
+        let canBuy = shop.product(for: pid) != nil && !busy
+        add(busy ? "..." : "buy \(priceText(pid))", 22, canBuy ? Palette.orange : .darkGray, "sheet.buy", gap: 40)
+        for pack in packs {
+            let can = shop.product(for: pack) != nil && !busy
+            add("\(packTitle(pack)) \(priceText(pack))", 14, can ? Palette.paper : .darkGray, "sheet.pack:\(pack)", gap: 34)
+        }
+        add(sheetMessage ?? (shop.lastLoadFailed && shop.products.isEmpty ? "store unavailable. check your connection." : " "),
+            12, muted, gap: 34)
+        add("cancel", 16, .darkGray, "sheet.cancel", gap: 0)
+        return root
+    }
+
+    private func openSheet(_ key: String) {
+        sheetKey = key
+        sheetMessage = nil
+        selection.selectionChanged()
+        if shop.products.isEmpty { Task { await shop.loadProducts() } }
+        build()
+    }
+
+    private func closeSheet() {
+        sheetKey = nil
+        sheetMessage = nil
+        build()
+    }
+
+    private func buy(_ pid: String, for key: String) {
+        guard !busy else { return }
+        busy = true
+        sheetMessage = nil
+        build()
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let outcome = await self.shop.purchase(productID: pid)
+            self.busy = false
+            if outcome == .purchased {
+                // Select what they just bought.
+                if key.hasPrefix("skin."), let s = SkinCatalog.skin(id: String(key.dropFirst(5))) { self.store.selectedSkin = s }
+                if key.hasPrefix("map."), let m = MapCatalog.map(id: String(key.dropFirst(4))) { self.store.selectedMap = m }
+                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                self.closeSheet()
+                if let m = outcome.message { self.showToast(m) }
+            } else if outcome == .cancelled {
+                self.build()
+            } else {
+                self.sheetMessage = outcome.message
+                self.build()
+            }
+        }
+    }
+
+    private func restorePurchases() {
+        guard !busy else { return }
+        busy = true
+        showToast("restoring...")
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            let msg = await self.shop.restore()
+            self.busy = false
+            self.build()
+            if !msg.isEmpty { self.showToast(msg) }
         }
     }
 
@@ -220,7 +362,19 @@ final class CustomizeScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let names = nodes(at: touch.location(in: self)).compactMap { $0.name }
+        if let key = sheetKey {
+            // Sheet is modal: only its controls respond. Don't rely on hit order.
+            if names.contains("sheet.buy") {
+                buy(productID(for: key), for: key)
+            } else if let pack = names.first(where: { $0.hasPrefix("sheet.pack:") }) {
+                buy(String(pack.dropFirst("sheet.pack:".count)), for: key)
+            } else if names.contains("sheet.cancel") || !names.contains("sheet.panel") {
+                if !busy { closeSheet() }
+            }
+            return
+        }
         guard let name = names.first else { return }
+        if name == "restore" { restorePurchases(); return }
 
         if name == "back" {
             let menu = MainMenu(size: size)
@@ -250,7 +404,7 @@ final class CustomizeScene: SKScene {
                 selection.selectionChanged()
                 build()
             } else {
-                showToast("unlock coming soon.")
+                openSheet(name)
             }
         } else if name.hasPrefix("map."), let map = MapCatalog.map(id: String(name.dropFirst(4))) {
             if store.isUnlocked(mapID: map.id) {
@@ -258,7 +412,7 @@ final class CustomizeScene: SKScene {
                 selection.selectionChanged()
                 build()
             } else {
-                showToast("unlock coming soon.")
+                openSheet(name)
             }
         }
     }
