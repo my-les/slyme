@@ -1,56 +1,67 @@
 import SwiftUI
 import GameKit
 
-class GameCenterManager: NSObject, GKGameCenterControllerDelegate, ObservableObject {
+/// Game Center wrapper. slyme has exactly one leaderboard: best score.
+final class GameCenterManager: NSObject, GKGameCenterControllerDelegate, ObservableObject {
     static let shared = GameCenterManager()
+
+    /// Must match the leaderboard's Leaderboard ID in App Store Connect.
     let bestScoreLeaderboardID = "555"
 
+    private let localBestKey = "localBestScore"
 
+    /// Best score finished on this device, kept so we can retry/skip redundant submits.
+    var localBest: Int { UserDefaults.standard.integer(forKey: localBestKey) }
+
+    private var topViewController: UIViewController? {
+        let scene = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }
+        var top = scene?.keyWindow?.rootViewController
+        while let presented = top?.presentedViewController { top = presented }
+        return top
+    }
 
     func authenticatePlayer() {
-        let localPlayer = GKLocalPlayer.local
-        localPlayer.authenticateHandler = { viewController, error in
+        GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in
             if let viewController = viewController {
-                // Present authentication view controller
-                if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
-                    rootViewController.present(viewController, animated: true)
-                }
-            } else if localPlayer.isAuthenticated {
-                print("Player authenticated")
-            } else {
-                print("Player not authenticated")
-                if let error = error {
-                    print(error.localizedDescription)
-                }
+                self?.topViewController?.present(viewController, animated: true)
+            } else if GKLocalPlayer.local.isAuthenticated {
+                // Push any score earned while signed out.
+                self?.submitScore(self?.localBest ?? 0)
+            } else if let error = error {
+                print("Game Center auth error: \(error.localizedDescription)")
             }
         }
     }
-    
+
+    /// Submit a finished run. Game Center keeps only the player's best (set the
+    /// leaderboard to "Best Score" in App Store Connect).
     func submitScore(_ score: Int) {
-        if GKLocalPlayer.local.isAuthenticated {
-            let scoreReporter = GKScore(leaderboardIdentifier: bestScoreLeaderboardID)
-            scoreReporter.value = Int64(score)
-            GKScore.report([scoreReporter]) { error in
-                if let error = error {
-                    print("Error submitting score: \(error.localizedDescription)")
-                }
+        guard score > 0 else { return }
+        if score > localBest {
+            UserDefaults.standard.set(score, forKey: localBestKey)
+        }
+        guard GKLocalPlayer.local.isAuthenticated else { return }
+        GKLeaderboard.submitScore(score, context: 0, player: GKLocalPlayer.local,
+                                  leaderboardIDs: [bestScoreLeaderboardID]) { error in
+            if let error = error {
+                print("Error submitting score: \(error.localizedDescription)")
             }
         }
     }
-    
+
+    /// Opens the single best-score leaderboard directly.
     func showLeaderboard() {
-        if GKLocalPlayer.local.isAuthenticated {
-            let gcViewController = GKGameCenterViewController(state: .leaderboards)
-            gcViewController.gameCenterDelegate = self
-            if let rootViewController = UIApplication.shared.windows.first?.rootViewController {
-                rootViewController.present(gcViewController, animated: true)
-            }
-        }
+        guard GKLocalPlayer.local.isAuthenticated else { return }
+        let vc = GKGameCenterViewController(leaderboardID: bestScoreLeaderboardID,
+                                            playerScope: .global,
+                                            timeScope: .allTime)
+        vc.gameCenterDelegate = self
+        topViewController?.present(vc, animated: true)
     }
-    
+
     func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
         gameCenterViewController.dismiss(animated: true)
     }
-
-    
 }

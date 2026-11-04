@@ -419,7 +419,7 @@ class GameScene: SKScene {
         isGameOver = true
         stopClock()
         showGameOverAlert()
-        GameCenterManager().submitScore(score)
+        GameCenterManager.shared.submitScore(score)
         resetSavedGameState()
     }
 
