@@ -33,11 +33,11 @@ def look(body, light=False, alpha=1.0):
 SKINS = {
     "paper":  (look("#F5F3EF", True),) * 2,
     "ember":  (look("#FF4F00"),) * 2,
-    "duo":    (look("#2F5BFF"),) * 2,
-    "gold":   (look("#FFD24D"), look("#E0A82E")),
-    "ghost":  (look("#E6ECF2", True, 0.75), look("#E6ECF2", True, 0.45)),
-    "signal": (look("#F5F3EF", True), look("#FF4F00")),
-    "indigo": (look("#F5F3EF", True), look("#5856D6")),
+    "duo":    (look("#00A8FF"),) * 2,
+    "gold":   (look("#E0A82E"),) * 2,
+    "ghost":  (look("#E6ECF2", True, 0.6),) * 2,
+    "signal": (look("#FF4F00"),) * 2,
+    "indigo": (look("#5856D6"),) * 2,
 }
 
 def weights(c):

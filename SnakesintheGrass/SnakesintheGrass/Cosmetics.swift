@@ -51,11 +51,11 @@ enum SkinCatalog {
         Skin(id: "paper", name: "paper", tier: .free, previewColor: Palette.paper),
         Skin(id: "ember", name: "ember", tier: .free, previewColor: Palette.orange),
         // Premium
-        Skin(id: "duo", name: "duo blue", tier: .premium, previewColor: Palette.blue),
+        Skin(id: "duo", name: "duo blue", tier: .premium, previewColor: UIColor(red: 0.0, green: 0.659, blue: 1.0, alpha: 1)),
         Skin(id: "gold", name: "gold", tier: .premium, previewColor: UIColor(red: 0.88, green: 0.66, blue: 0.18, alpha: 1)),
         Skin(id: "ghost", name: "ghost", tier: .premium, previewColor: UIColor(white: 0.9, alpha: 0.6)),
         Skin(id: "signal", name: "signal", tier: .premium, previewColor: Palette.orange),
-        Skin(id: "indigo", name: "indigo", tier: .premium, previewColor: .systemIndigo),
+        Skin(id: "indigo", name: "indigo", tier: .premium, previewColor: UIColor(red: 0.345, green: 0.337, blue: 0.839, alpha: 1)),
     ]
 
     static func skin(id: String?) -> Skin? { all.first { $0.id == id } }
