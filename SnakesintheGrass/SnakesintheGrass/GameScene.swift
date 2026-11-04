@@ -16,7 +16,9 @@ class GameScene: SKScene {
     private let gridHeight = GameScene.rows
     private static let saveVersion = 2
 
-    ///MARK: create skins eventually
+    // MARK: - Cosmetics (data-driven, see Cosmetics.swift)
+    private var skin: Skin = EntitlementStore.shared.selectedSkin
+    private var map: GameMap = EntitlementStore.shared.selectedMap
     private var snake: [(Int, Int)] = []
     private var food: SKSpriteNode?
     private var foodCell: (Int, Int)?
@@ -209,7 +211,44 @@ class GameScene: SKScene {
             food?.size = CGSize(width: cellSize, height: cellSize)
             food?.position = point(for: cell)
         }
+        drawMap()
         updateSnakeDisplay()
+    }
+
+    /// Floor pattern + obstacles for the current map. No outline is drawn.
+    private func drawMap() {
+        childNode(withName: "mapLayer")?.removeFromParent()
+        let layer = MapRenderer.board(for: map, cell: cellSize, previewFloor: false)
+        layer.name = "mapLayer"
+        layer.position = CGPoint(x: boardRect.midX, y: boardRect.midY)
+        layer.zPosition = -1
+        addChild(layer)
+    }
+
+    private func isBlocked(_ cell: (Int, Int)) -> Bool {
+        map.obstacles.contains(GridCell(cell.0, cell.1))
+    }
+
+    /// Classic start cell, moved if the map puts something on it or right in
+    /// front of it (the snake starts heading right).
+    private func startCell() -> (Int, Int) {
+        let preferred = (Int(Double(gridWidth) * 0.6), Int(Double(gridHeight) * 0.7))
+        func safe(_ c: (Int, Int)) -> Bool {
+            for d in 0...4 {
+                let x = c.0 + d
+                if map.edges == .kill && x >= gridWidth { return false }
+                if isBlocked(((x + gridWidth) % gridWidth, c.1)) { return false }
+            }
+            return true
+        }
+        if safe(preferred) { return preferred }
+        var best: (Int, Int)?
+        var bestDist = Int.max
+        for x in 0..<gridWidth { for y in 0..<gridHeight where safe((x, y)) {
+            let d = abs(x - preferred.0) + abs(y - preferred.1)
+            if d < bestDist { bestDist = d; best = (x, y) }
+        } }
+        return best ?? preferred
     }
 
     /// Center of a grid cell in scene coordinates.
@@ -297,8 +336,14 @@ class GameScene: SKScene {
         moveDirection = CGVector(dx: 1, dy: 0)
         isGameOver = false
 
-        // Same start cell as before (60% across, 70% up), now in grid units.
-        snake.insert((Int(Double(gridWidth) * 0.6), Int(Double(gridHeight) * 0.7)), at: 0)
+        // Same start cell as before (60% across, 70% up), unless the map blocks it.
+        snake.insert(startCell(), at: 0)
+        #if DEBUG
+        // Testing only (screenshots): start with a longer snake trailing left.
+        if ProcessInfo.processInfo.arguments.contains("-slymeLongSnake"), let h = snake.first {
+            for i in 1...5 where h.0 - i >= 0 && !isBlocked((h.0 - i, h.1)) { snake.append((h.0 - i, h.1)) }
+        }
+        #endif
         spawnFood()
     }
 
@@ -309,7 +354,7 @@ class GameScene: SKScene {
         var free: [(Int, Int)] = []
         free.reserveCapacity(gridWidth * gridHeight)
         for x in 0..<gridWidth {
-            for y in 0..<gridHeight where !occupied.contains(x * 10_000 + y) {
+            for y in 0..<gridHeight where !occupied.contains(x * 10_000 + y) && !isBlocked((x, y)) {
                 free.append((x, y))
             }
         }
@@ -464,10 +509,13 @@ class GameScene: SKScene {
 
     private func moveSnake() {
         guard let head = snake.first else { return }
-        let newHead = (
-            (head.0 + Int(moveDirection.dx) + gridWidth) % gridWidth,
-            (head.1 + Int(moveDirection.dy) + gridHeight) % gridHeight
-        )
+        let rawX = head.0 + Int(moveDirection.dx), rawY = head.1 + Int(moveDirection.dy)
+        if map.edges == .kill && !((0..<gridWidth).contains(rawX) && (0..<gridHeight).contains(rawY)) {
+            notificationFeedbackGenerator.notificationOccurred(.error)
+            gameOver()
+            return
+        }
+        let newHead = ((rawX + gridWidth) % gridWidth, (rawY + gridHeight) % gridHeight)
 
         if let foodCell = foodCell, newHead == foodCell {
             impactFeedbackGenerator.impactOccurred()
@@ -488,7 +536,7 @@ class GameScene: SKScene {
 
     private func checkForCollisions() -> Bool {
         guard let head = snake.first else { return false }
-        return snake.dropFirst().contains { $0 == head }
+        return isBlocked(head) || snake.dropFirst().contains { $0 == head }
     }
 
     private func updateScore() {
@@ -593,8 +641,8 @@ class GameScene: SKScene {
                 nextPosition: nextPosition,
                 moveDirection: moveDirection
             )
-            let node = SKSpriteNode(texture: SKTexture(imageNamed: textureName),
-                                    size: CGSize(width: cellSize, height: cellSize))
+            let node = skin.makeSegment(textureName: textureName, isHead: index == 0,
+                                        size: CGSize(width: cellSize, height: cellSize))
             node.position = point(for: currentPosition)
             node.name = "snakeSegment"
             addChild(node)
@@ -613,7 +661,9 @@ class GameScene: SKScene {
             "level": level,
             "snake": snake.map { ["x": $0.0, "y": $0.1] },
             "moveDirection": ["dx": Double(moveDirection.dx), "dy": Double(moveDirection.dy)],
-            "elapsedTime": elapsedTime
+            "elapsedTime": elapsedTime,
+            "skin": skin.id,
+            "map": map.id
         ]
         if let f = foodCell { gameState["food"] = ["x": f.0, "y": f.1] }
         UserDefaults.standard.set(gameState, forKey: "savedGameState")
@@ -634,9 +684,17 @@ class GameScene: SKScene {
             guard let x = d["x"], let y = d["y"] else { return nil }
             return (x, y)
         }
+        // Resume on the map the run started on if it's still available,
+        // otherwise the current selection; either way, validate against it.
+        if let id = state["map"] as? String, let saved = MapCatalog.map(id: id),
+           EntitlementStore.shared.isUnlocked(mapID: id) {
+            map = saved
+        }
         let inBounds = cells.allSatisfy { (0..<gridWidth).contains($0.0) && (0..<gridHeight).contains($0.1) }
         let unique = Set(cells.map { $0.0 * 10_000 + $0.1 }).count == cells.count
-        guard cells.count == raw.count, inBounds, unique else {
+        let clear = !cells.contains { isBlocked($0) }
+        guard cells.count == raw.count, inBounds, unique, clear else {
+            map = EntitlementStore.shared.selectedMap
             resetSavedGameState()
             return
         }
@@ -653,13 +711,14 @@ class GameScene: SKScene {
         }
         if let f = state["food"] as? [String: Int], let x = f["x"], let y = f["y"],
            (0..<gridWidth).contains(x), (0..<gridHeight).contains(y),
-           !snake.contains(where: { $0 == (x, y) }) {
+           !snake.contains(where: { $0 == (x, y) }), !isBlocked((x, y)) {
             placeFood(at: (x, y))
         } else {
             spawnFood()
         }
         scoreLabel?.text = "Score: \(score) | Level: \(level)"
         clockLabel?.text = format(timeInterval: elapsedTime)
+        drawMap()
         updateSnakeDisplay()
     }
 
@@ -709,7 +768,6 @@ class GameScene: SKScene {
 
             case .body:
                 guard let prev = previousPosition, let next = nextPosition else {
-                    print("1")
                     return "body_horizontal"
                 }
 
@@ -727,20 +785,14 @@ class GameScene: SKScene {
 
                 switch (dx1, dy1, dx2, dy2) {
                 case (1, 0, 0, 1), (0, -1, -1, 0):
-
-                    print("this")
                     return "body_topleft"
                 case (-1, 0, 0, 1), (0, -1, 1, 0):
-                    print("that")
                     return "body_topright"
                 case (1, 0, 0, -1), (0, 1, -1, 0):
-                    print("typeshit")
                     return "body_bottomleft"
                 case (-1, 0, 0, -1), (0, 1, 1, 0):
-                    print("umm")
                     return "body_bottomright"
                 default:
-                    print("we got here")
                     return "body_vertical"
                 }
             }

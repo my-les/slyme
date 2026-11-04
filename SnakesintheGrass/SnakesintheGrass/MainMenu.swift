@@ -48,6 +48,9 @@ class MainMenu: SKScene {
         let highScoresButton = createButton(withText: "high scores", name: "highScoresButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 120))
         addChild(highScoresButton)
 
+        let customizeButton = createButton(withText: "customize", name: "customizeButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 180))
+        addChild(customizeButton)
+
         // Initialize GameCenter
         GameCenterManager.shared.authenticatePlayer()
     }
@@ -86,6 +89,10 @@ class MainMenu: SKScene {
 
                 """
                 )
+            } else if node.name == "customizeButton" {
+                let customize = CustomizeScene(size: self.size)
+                customize.scaleMode = .resizeFill
+                view?.presentScene(customize, transition: .fade(withDuration: 0.4))
             } else if node.name == "highScoresButton" {
                 GameCenterManager.shared.showLeaderboard()
             }
