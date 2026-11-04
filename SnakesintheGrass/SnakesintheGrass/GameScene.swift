@@ -3,6 +3,9 @@ import UIKit
 import GameKit
 
 class GameScene: SKScene {
+    /// The game scene currently on screen, so app lifecycle hooks can reach it
+    /// without walking UIApplication windows.
+    static weak var active: GameScene?
     ///MARK: create skins eventually
     private var snake: [(Int, Int)] = []
     private var food: SKSpriteNode?
@@ -64,6 +67,33 @@ class GameScene: SKScene {
 
         setupSaveMessageLabel()
         loadGameState()
+
+        GameScene.active = self
+        let nc = NotificationCenter.default
+        nc.addObserver(self, selector: #selector(appWillResignActive),
+                       name: UIScene.willDeactivateNotification, object: nil)
+        nc.addObserver(self, selector: #selector(appDidBecomeActive),
+                       name: UIScene.didActivateNotification, object: nil)
+    }
+
+    override func willMove(from view: SKView) {
+        NotificationCenter.default.removeObserver(self)
+        if GameScene.active === self { GameScene.active = nil }
+        super.willMove(from: view)
+    }
+
+    @objc private func appWillResignActive() { handleAppBackgrounded() }
+
+    /// Save an in-progress run and pause it. Called on deactivate/background.
+    func handleAppBackgrounded() {
+        guard !isGameOver, !snake.isEmpty else { return }
+        saveGameState()
+        if !isPausedGame { pauseGame() }
+    }
+
+    @objc private func appDidBecomeActive() {
+        // SKView un-pauses its scene when the app returns; keep our pause.
+        if isPausedGame { isPaused = true }
     }
 
     private func addSwipeGesture(to view: SKView, direction: UISwipeGestureRecognizer.Direction) {
@@ -240,7 +270,7 @@ class GameScene: SKScene {
         let nodesAtPoint = nodes(at: location)
 
         if nodesAtPoint.contains(where: { $0.name == "pauseButton" }) {
-            if isPaused {
+            if isPausedGame {
                 resumeGame()
             } else {
                 pauseGame()
@@ -256,9 +286,9 @@ class GameScene: SKScene {
     }
 
     private func pauseGame() {
-        guard !isPaused else { return }
+        guard !isPausedGame else { return }
 
-        isPaused = true
+        isPausedGame = true
         self.isPaused = true
         stopClock()
 
@@ -328,8 +358,9 @@ class GameScene: SKScene {
         pauseButton?.zPosition = 10
         addChild(pauseButton!)
         
-        isPaused = false
+        isPausedGame = false
         self.isPaused = false
+        startTime = 0 // re-anchor the clock so paused time isn't counted
 
         if let pausedLabel = childNode(withName: "pausedLabel") {
             pausedLabel.removeFromParent()
@@ -345,13 +376,14 @@ class GameScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        if !isGameOver && !isPaused && currentTime > nextMoveTime {
+        if !isGameOver && !isPausedGame && !isPaused && currentTime > nextMoveTime {
             moveSnake()
             nextMoveTime = currentTime + moveSpeed
 
 
             if startTime == 0 {
-                startTime = currentTime
+                // Continue from any restored/paused elapsed time.
+                startTime = currentTime - elapsedTime
             }
             elapsedTime = currentTime - startTime
             clockLabel.text = format(timeInterval: elapsedTime)

@@ -9,11 +9,13 @@ import SpriteKit
 
 struct ContentView: View {
 
-    var scene: SKScene {
+    // Held in @State so SwiftUI re-rendering (e.g. on scenePhase changes)
+    // never swaps in a fresh MainMenu and throws away a running game.
+    @State private var scene: SKScene = {
         let scene = MainMenu()
         scene.scaleMode = .resizeFill
         return scene
-    }
+    }()
 
     var body: some View {
         SpriteView(scene: scene)
@@ -21,6 +23,3 @@ struct ContentView: View {
             .ignoresSafeArea()
     }
 }
-
-
-

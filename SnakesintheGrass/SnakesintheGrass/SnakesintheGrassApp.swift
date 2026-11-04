@@ -6,37 +6,23 @@
 //
 
 import SwiftUI
-import UIKit
-import SpriteKit
 
 @main
 struct SnakesintheGrassApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-    }
-}
-
-class AppDelegate: NSObject, UIApplicationDelegate, UISceneDelegate {
-    func sceneWillResignActive(_ scene: UIScene) {
-        // Save game state when the app goes to the background.
-        if let gameScene = findGameScene() {
-            gameScene.saveGameState()
+        .onChange(of: scenePhase) { _, phase in
+            // Save the run whenever the app leaves the foreground. GameScene
+            // also listens for UIScene notifications; saving twice is harmless.
+            // Resuming does NOT reload from disk: the live scene already holds
+            // the state, so there is no double-load.
+            if phase != .active {
+                GameScene.active?.handleAppBackgrounded()
+            }
         }
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        // Load game state when the app returns to the foreground.
-        if let gameScene = findGameScene() {
-            gameScene.loadGameState()
-        }
-    }
-
-    private func findGameScene() -> GameScene? {
-        let rootView = UIApplication.shared.windows.first?.rootViewController?.view
-        return (rootView as? SKView)?.scene as? GameScene
     }
 }
