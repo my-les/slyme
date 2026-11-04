@@ -23,7 +23,7 @@ struct ContentView: View {
     #if DEBUG
     /// Testing only. Launch arguments:
     ///   -slymeUnlockAll YES|NO   -slymeSkin <id>   -slymeMap <id>
-    ///   -slymeStart game|skins|maps|twoplayer|twoplayermatch   -slymeTwoDemo   -slymeLongSnake   -slymeFreeze
+    ///   -slymeStart game|skins|maps|twoplayer|twoplayermatch|online|onlinefinding|onlinedemo   -slymeTwoDemo   -slymeLongSnake   -slymeFreeze
     private static func debugLaunchScene() -> SKScene? {
         let d = UserDefaults.standard // launch args land in the argument domain
         let store = EntitlementStore.shared
@@ -42,6 +42,9 @@ struct ContentView: View {
             scene = TwoPlayerScene(size: .zero, p1Skin: store.selectedSkin,
                                    p2Skin: SkinCatalog.skin(id: "ember") ?? store.selectedSkin,
                                    map: store.selectedMap, facing: TwoPlayerConfig.defaultFacing)
+        case "online": scene = OnlineLobbyScene(size: .zero)
+        case "onlinefinding": scene = OnlineLobbyScene(size: .zero, forcedStatus: .finding)
+        case "onlinedemo": scene = OnlineMatchScene.loopbackDemo(size: .zero, autopilot: true)
         default: return nil
         }
         scene.scaleMode = .resizeFill

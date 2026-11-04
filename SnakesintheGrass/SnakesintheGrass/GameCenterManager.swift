@@ -27,9 +27,13 @@ final class GameCenterManager: NSObject, GKGameCenterControllerDelegate, Observa
             if let viewController = viewController {
                 self?.topViewController?.present(viewController, animated: true)
             } else if GKLocalPlayer.local.isAuthenticated {
+                // Online versus: listen for invites, and unblock the lobby.
+                OnlineMatchmaker.shared.registerListener()
+                OnlineLobbyScene.active?.setStatus(.ready)
                 // Push any score earned while signed out.
                 self?.submitScore(self?.localBest ?? 0)
             } else if let error = error {
+                OnlineLobbyScene.active?.setStatus(.signedOut)
                 print("Game Center auth error: \(error.localizedDescription)")
             }
         }

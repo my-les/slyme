@@ -23,8 +23,14 @@
 		B2C0FFEE0000001200000000 /* slyme.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000200000000 /* slyme.storekit */; };
 		A1C0FFEE0000001500000000 /* TwoPlayerRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */; };
 		A1C0FFEE0000001600000000 /* TwoPlayerScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000600000000 /* TwoPlayerScene.swift */; };
+		C3C0FFEE0000005400000000 /* OnlineMatchScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0FFEE0000004400000000 /* OnlineMatchScene.swift */; };
+		C3C0FFEE0000005300000000 /* OnlineLobbyScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0FFEE0000004300000000 /* OnlineLobbyScene.swift */; };
+		C3C0FFEE0000005200000000 /* OnlineGameKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0FFEE0000004200000000 /* OnlineGameKit.swift */; };
+		C3C0FFEE0000005100000000 /* OnlineSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0FFEE0000004100000000 /* OnlineSession.swift */; };
+		C3C0FFEE0000005000000000 /* OnlineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3C0FFEE0000004000000000 /* OnlineProtocol.swift */; };
 		A1C0FFEE0000001700000000 /* TwoPlayerSetupScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */; };
 		B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */; };
+		D4C0FFEE0000005000000000 /* OnlineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C0FFEE0000004000000000 /* OnlineTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,8 +64,14 @@
 		B2C0FFEE0000000300000000 /* slymeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = slymeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerRules.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000600000000 /* TwoPlayerScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerScene.swift; sourceTree = "<group>"; };
+		C3C0FFEE0000004400000000 /* OnlineMatchScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineMatchScene.swift; sourceTree = "<group>"; };
+		C3C0FFEE0000004300000000 /* OnlineLobbyScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineLobbyScene.swift; sourceTree = "<group>"; };
+		C3C0FFEE0000004200000000 /* OnlineGameKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineGameKit.swift; sourceTree = "<group>"; };
+		C3C0FFEE0000004100000000 /* OnlineSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineSession.swift; sourceTree = "<group>"; };
+		C3C0FFEE0000004000000000 /* OnlineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineProtocol.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerSetupScene.swift; sourceTree = "<group>"; };
 		B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerRulesTests.swift; sourceTree = "<group>"; };
+		D4C0FFEE0000004000000000 /* OnlineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +124,11 @@
 				A1C0FFEE0000000300000000 /* CustomizeScene.swift */,
 				A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */,
 				A1C0FFEE0000000600000000 /* TwoPlayerScene.swift */,
+				C3C0FFEE0000004400000000 /* OnlineMatchScene.swift */,
+				C3C0FFEE0000004300000000 /* OnlineLobbyScene.swift */,
+				C3C0FFEE0000004200000000 /* OnlineGameKit.swift */,
+				C3C0FFEE0000004100000000 /* OnlineSession.swift */,
+				C3C0FFEE0000004000000000 /* OnlineProtocol.swift */,
 				A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */,
 				A1C0FFEE0000000200000000 /* EntitlementStore.swift */,
 				A1C0FFEE0000000400000000 /* StoreManager.swift */,
@@ -136,6 +153,7 @@
 			children = (
 				B2C0FFEE0000000100000000 /* StoreTests.swift */,
 				B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */,
+				D4C0FFEE0000004000000000 /* OnlineTests.swift */,
 			);
 			path = slymeTests;
 			sourceTree = "<group>";
@@ -250,6 +268,11 @@
 				A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */,
 				A1C0FFEE0000001700000000 /* TwoPlayerSetupScene.swift in Sources */,
 				A1C0FFEE0000001600000000 /* TwoPlayerScene.swift in Sources */,
+				C3C0FFEE0000005400000000 /* OnlineMatchScene.swift in Sources */,
+				C3C0FFEE0000005300000000 /* OnlineLobbyScene.swift in Sources */,
+				C3C0FFEE0000005200000000 /* OnlineGameKit.swift in Sources */,
+				C3C0FFEE0000005100000000 /* OnlineSession.swift in Sources */,
+				C3C0FFEE0000005000000000 /* OnlineProtocol.swift in Sources */,
 				A1C0FFEE0000001500000000 /* TwoPlayerRules.swift in Sources */,
 				A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */,
 				A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */,
@@ -263,6 +286,7 @@
 			files = (
 				B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */,
 				B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */,
+				D4C0FFEE0000005000000000 /* OnlineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

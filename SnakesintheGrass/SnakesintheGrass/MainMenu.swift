@@ -44,14 +44,17 @@ class MainMenu: SKScene {
         addChild(twoPlayerButton)
 
         // Create the About button
-        let aboutButton = createButton(withText: "instructions", name: "aboutButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 120))
+        let onlineButton = createButton(withText: "online", name: "onlineButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 120))
+        addChild(onlineButton)
+
+        let aboutButton = createButton(withText: "instructions", name: "aboutButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 180))
         addChild(aboutButton)
 
         // Create the High Scores button
-        let highScoresButton = createButton(withText: "high scores", name: "highScoresButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 180))
+        let highScoresButton = createButton(withText: "high scores", name: "highScoresButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 240))
         addChild(highScoresButton)
 
-        let customizeButton = createButton(withText: "customize", name: "customizeButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 240))
+        let customizeButton = createButton(withText: "customize", name: "customizeButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 300))
         addChild(customizeButton)
 
         // Initialize GameCenter
@@ -96,6 +99,10 @@ class MainMenu: SKScene {
                 let setup = TwoPlayerSetupScene(size: self.size)
                 setup.scaleMode = .resizeFill
                 view?.presentScene(setup, transition: .fade(withDuration: 0.4))
+            } else if node.name == "onlineButton" {
+                let lobby = OnlineLobbyScene(size: self.size)
+                lobby.scaleMode = .resizeFill
+                view?.presentScene(lobby, transition: .fade(withDuration: 0.4))
             } else if node.name == "customizeButton" {
                 let customize = CustomizeScene(size: self.size)
                 customize.scaleMode = .resizeFill
