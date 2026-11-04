@@ -737,7 +737,8 @@ class GameScene: SKScene {
         UserDefaults.standard.removeObject(forKey: "savedGameState")
     }
 
-    private enum SnakePartType {
+    /// Internal (not private) so TwoPlayerScene reuses the same texture picking.
+    enum SnakePartType {
         case head
         case body
         case tail
