@@ -23,7 +23,27 @@ final class EntitlementStore {
         static let debugAll = "cosmetics.debugUnlockAll"
     }
 
-    init(defaults: UserDefaults = .standard) { self.defaults = defaults }
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        pruneRemovedItems()
+    }
+
+    /// Drop selections/unlocks for items no longer in the catalogs (e.g. "signal").
+    private func pruneRemovedItems() {
+        if let id = defaults.string(forKey: Key.skin), SkinCatalog.skin(id: id) == nil {
+            defaults.removeObject(forKey: Key.skin)
+        }
+        if let id = defaults.string(forKey: Key.map), MapCatalog.map(id: id) == nil {
+            defaults.removeObject(forKey: Key.map)
+        }
+        let ids = unlockedIDs
+        let kept = ids.filter { key in
+            if key.hasPrefix("skin.") { return SkinCatalog.skin(id: String(key.dropFirst(5))) != nil }
+            if key.hasPrefix("map.") { return MapCatalog.map(id: String(key.dropFirst(4))) != nil }
+            return true
+        }
+        if kept != ids { unlockedIDs = kept }
+    }
 
     // MARK: Ownership
 

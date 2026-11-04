@@ -5,7 +5,7 @@ Each og pixel is decomposed (least squares, barycentric) into a mix of the
 og body blue, the eye white and the pupil blue, then rebuilt with the skin's
 colors. Alpha is kept, so antialiasing survives.
 
-Usage: python3 tools/recolor_skins.py   (run from the repo root)
+Usage: python3 tools/recolor_skins.py [skin_id ...]   (default: all in tools/skins.json)
 Writes SnakesintheGrass/Assets.xcassets/skin_<id>_<piece>.imageset/
 """
 import json, os
@@ -29,16 +29,19 @@ def look(body, light=False, alpha=1.0):
         return (b, DARK_EYE, DARK_PUPIL, alpha)
     return (b, OG_EYE, dark(b, 0.45), alpha)
 
-# skin id -> (head look, body/tail look)
-SKINS = {
-    "paper":  (look("#F5F3EF", True),) * 2,
-    "ember":  (look("#FF4F00"),) * 2,
-    "duo":    (look("#00A8FF"),) * 2,
-    "gold":   (look("#E0A82E"),) * 2,
-    "ghost":  (look("#E6ECF2", True, 0.6),) * 2,
-    "signal": (look("#FF4F00"),) * 2,
-    "indigo": (look("#5856D6"),) * 2,
-}
+# Skin list lives in tools/skins.json (id, body hex, optional light, alpha).
+# Head and body share one look.
+CONFIG = os.path.join(os.path.dirname(__file__), "skins.json")
+
+def load_skins():
+    cfg = json.load(open(CONFIG))
+    out = {}
+    for e in cfg["skins"]:
+        lk = look(e["body"], e.get("light", False), e.get("alpha", 1.0))
+        out[e["id"]] = (lk, lk)
+    return out
+
+SKINS = load_skins()
 
 def weights(c):
     # c = B + u(E-B) + v(P-B); solve 2x2 normal equations
@@ -78,11 +81,14 @@ def write(name, img):
               open(os.path.join(d, "Contents.json"), "w"), indent=2)
 
 def main():
-    for sid, (head, rest) in SKINS.items():
+    import sys
+    ids = sys.argv[1:] or list(SKINS)
+    for sid in ids:
+        head, rest = SKINS[sid]
         for piece in PIECES:
             src = Image.open(os.path.join(ASSETS, f"{piece}.imageset", f"{piece}.png")).convert("RGBA")
             write(f"skin_{sid}_{piece}", recolor(src, head if piece.startswith("head") else rest))
-    print("wrote", len(SKINS) * len(PIECES), "images")
+    print("wrote", len(ids) * len(PIECES), "images")
 
 if __name__ == "__main__":
     main()

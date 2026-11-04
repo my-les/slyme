@@ -1,0 +1,11 @@
+{
+  "_comment": "Recolor skins generated from the og art by tools/recolor_skins.py. Textured/branded skins are NOT listed here; see docs/ADDING_SKINS.md.",
+  "skins": [
+    {"id": "paper",  "body": "#F5F3EF", "light": true},
+    {"id": "ember",  "body": "#FF4F00"},
+    {"id": "duo",    "body": "#00A8FF"},
+    {"id": "gold",   "body": "#E0A82E"},
+    {"id": "ghost",  "body": "#E6ECF2", "light": true, "alpha": 0.6},
+    {"id": "indigo", "body": "#5856D6"}
+  ]
+}

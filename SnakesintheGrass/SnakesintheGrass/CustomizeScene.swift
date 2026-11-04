@@ -13,6 +13,8 @@ final class CustomizeScene: SKScene {
     enum Page { case skins, maps }
 
     private var page: Page
+    /// Current pager page when there are more cards than fit.
+    private var pageIndex = 0
     private let store = EntitlementStore.shared
     private let font = "CourierNewPS-BoldMT"
     private let toast = SKLabelNode(fontNamed: "CourierNewPS-BoldMT")
@@ -77,24 +79,48 @@ final class CustomizeScene: SKScene {
         toast.text = ""
         addChild(toast)
 
-        // Grid area between tabs and toast.
-        let grid = CGRect(x: r.minX, y: r.minY + 76, width: r.width, height: (tabsY - 28) - (r.minY + 76))
-        let count = page == .skins ? SkinCatalog.all.count : MapCatalog.all.count
+        // Grid area between tabs and pager/toast.
+        let skins = SkinCatalog.visible(owned: { store.isUnlocked(skinID: $0.id) })
+        let count = page == .skins ? skins.count : MapCatalog.all.count
+        let grid = CGRect(x: r.minX, y: r.minY + 100, width: r.width, height: (tabsY - 28) - (r.minY + 100))
         let columns = grid.width >= 600 ? 4 : (grid.width >= 420 ? 3 : 2)
-        let rowsN = Int(ceil(Double(count) / Double(columns)))
         let gap: CGFloat = 16
         let cellW = (grid.width - gap * CGFloat(columns - 1)) / CGFloat(columns)
-        let cellH = min((grid.height - gap * CGFloat(rowsN - 1)) / CGFloat(rowsN), cellW * 1.25)
+        // Cards never shrink below this; extra items go to the next page.
+        let minCellH: CGFloat = min(120, cellW * 1.1)
+        let maxRows = max(1, Int((grid.height + gap) / (minCellH + gap)))
+        let perPage = columns * maxRows
+        let pageCount = max(1, Int(ceil(Double(count) / Double(perPage))))
+        pageIndex = min(max(0, pageIndex), pageCount - 1)
+        let range = (pageIndex * perPage)..<min(count, (pageIndex + 1) * perPage)
+        let rowsN = max(1, Int(ceil(Double(range.count) / Double(columns))))
+        let rowsForSize = pageCount > 1 ? maxRows : rowsN
+        let cellH = min((grid.height - gap * CGFloat(rowsForSize - 1)) / CGFloat(rowsForSize), cellW * 1.25)
         let totalH = cellH * CGFloat(rowsN) + gap * CGFloat(rowsN - 1)
-        let top = grid.midY + totalH / 2
+        let top = pageCount > 1 ? grid.maxY : grid.midY + totalH / 2
 
-        for i in 0..<count {
-            let col = i % columns, row = i / columns
+        for (n, i) in range.enumerated() {
+            let col = n % columns, row = n / columns
             let frame = CGRect(x: grid.minX + CGFloat(col) * (cellW + gap),
                                y: top - CGFloat(row + 1) * cellH - CGFloat(row) * gap,
                                width: cellW, height: cellH)
-            addChild(page == .skins ? skinCard(SkinCatalog.all[i], in: frame)
+            addChild(page == .skins ? skinCard(skins[i], in: frame)
                                     : mapCard(MapCatalog.all[i], in: frame))
+        }
+
+        if pageCount > 1 {
+            let y = r.minY + 80
+            let prev = label("<", size: 22, color: pageIndex > 0 ? Palette.paper : .darkGray)
+            prev.position = CGPoint(x: r.midX - 70, y: y)
+            prev.name = "page.prev"
+            addChild(prev)
+            let info = label("\(pageIndex + 1)/\(pageCount)", size: 14, color: UIColor(white: 1, alpha: 0.45))
+            info.position = CGPoint(x: r.midX, y: y)
+            addChild(info)
+            let next = label(">", size: 22, color: pageIndex < pageCount - 1 ? Palette.paper : .darkGray)
+            next.position = CGPoint(x: r.midX + 70, y: y)
+            next.name = "page.next"
+            addChild(next)
         }
     }
 
@@ -200,8 +226,13 @@ final class CustomizeScene: SKScene {
             let menu = MainMenu(size: size)
             menu.scaleMode = .resizeFill
             view?.presentScene(menu, transition: .fade(withDuration: 0.4))
+        } else if name == "page.prev" || name == "page.next" {
+            pageIndex += name == "page.next" ? 1 : -1
+            selection.selectionChanged()
+            build()
         } else if name == "tab.skins" || name == "tab.maps" {
             page = name == "tab.skins" ? .skins : .maps
+            pageIndex = 0
             selection.selectionChanged()
             build()
         } else if name == "title" {
