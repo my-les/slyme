@@ -48,7 +48,6 @@ class GameScene: SKScene {
     private var cellSize: CGFloat = 22
     private var boardRect: CGRect = .zero
     private var hudRect: CGRect = .zero
-    private var boardBorder: SKShapeNode?
     private var hingeInteraction: AnyObject?
     private var lastLayoutKey: String = ""
 
@@ -188,15 +187,6 @@ class GameScene: SKScene {
 
     /// Reposition everything for the current board/HUD rects.
     private func applyLayout() {
-        boardBorder?.removeFromParent()
-        let border = SKShapeNode(rect: boardRect.insetBy(dx: -2, dy: -2), cornerRadius: 4)
-        border.strokeColor = UIColor(white: 1, alpha: 0.35)
-        border.lineWidth = 2
-        border.fillColor = .clear
-        border.zPosition = -1
-        border.name = "boardBorder"
-        addChild(border)
-        boardBorder = border
 
         let hudTop = hudRect.maxY
         clockLabel?.position = CGPoint(x: hudRect.midX, y: hudTop - 34)
@@ -565,7 +555,6 @@ class GameScene: SKScene {
         food = nil
         foodCell = nil
         scoreLabel = nil
-        boardBorder = nil
         saveMessageLabel = nil
         isGameOver = false
         isPausedGame = false
