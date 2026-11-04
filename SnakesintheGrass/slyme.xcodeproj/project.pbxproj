@@ -15,6 +15,9 @@
 		31B1ECAF2D161E66000C9C1D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */; };
 		31F434EF2CEB440C00D39AF8 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F434EE2CEB440C00D39AF8 /* MainMenu.swift */; };
 		31F434F32CEB47A700D39AF8 /* GameCenterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */; };
+		A1C0FFEE0000001100000000 /* Cosmetics.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000100000000 /* Cosmetics.swift */; };
+		A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000200000000 /* EntitlementStore.swift */; };
+		A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000300000000 /* CustomizeScene.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +32,9 @@
 		31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		31F434EE2CEB440C00D39AF8 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameCenterManager.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000100000000 /* Cosmetics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cosmetics.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000200000000 /* EntitlementStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementStore.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000300000000 /* CustomizeScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizeScene.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +74,9 @@
 				3199913F2CAA42F900DAB94F /* GameScene.swift */,
 				31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */,
 				31F434EE2CEB440C00D39AF8 /* MainMenu.swift */,
+				A1C0FFEE0000000300000000 /* CustomizeScene.swift */,
+				A1C0FFEE0000000200000000 /* EntitlementStore.swift */,
+				A1C0FFEE0000000100000000 /* Cosmetics.swift */,
 				31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */,
 				319991352CAA41C100DAB94F /* Assets.xcassets */,
 				319991372CAA41C100DAB94F /* Preview Content */,
@@ -159,6 +168,9 @@
 				319991322CAA41BE00DAB94F /* SnakesintheGrassApp.swift in Sources */,
 				31F434F32CEB47A700D39AF8 /* GameCenterManager.swift in Sources */,
 				31F434EF2CEB440C00D39AF8 /* MainMenu.swift in Sources */,
+				A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */,
+				A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */,
+				A1C0FFEE0000001100000000 /* Cosmetics.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

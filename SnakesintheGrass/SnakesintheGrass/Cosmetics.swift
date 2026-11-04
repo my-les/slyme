@@ -1,0 +1,174 @@
+//
+//  Cosmetics.swift
+//  slyme
+//
+//  Data-driven skins and maps. Add an entry to a catalog and it shows up
+//  in the customize screen and in game. No image assets required.
+//
+
+import SpriteKit
+import UIKit
+
+enum CosmeticTier: String, Codable {
+    case free
+    case premium
+}
+
+/// A grid cell on the fixed 18x32 board.
+struct GridCell: Hashable, Codable {
+    let x: Int
+    let y: Int
+    init(_ x: Int, _ y: Int) { self.x = x; self.y = y }
+}
+
+// MARK: - Skins
+
+struct Skin: Identifiable, Equatable {
+    enum Style: Equatable {
+        /// The original snake textures, optionally tinted (colorBlendFactor 0 = untouched).
+        case textures(tint: UIColor, blend: CGFloat)
+        /// Flat ink blocks, no textures. Head can differ from body.
+        case flat(body: UIColor, head: UIColor)
+    }
+
+    let id: String
+    let name: String
+    let tier: CosmeticTier
+    let style: Style
+
+    /// Build one segment node for this skin.
+    func makeSegment(textureName: String, isHead: Bool, size: CGSize) -> SKSpriteNode {
+        switch style {
+        case let .textures(tint, blend):
+            let node = SKSpriteNode(texture: SKTexture(imageNamed: textureName), size: size)
+            if blend > 0 {
+                node.color = tint
+                node.colorBlendFactor = blend
+            }
+            return node
+        case let .flat(body, head):
+            let inset: CGFloat = isHead ? 0.92 : 0.8
+            return SKSpriteNode(color: isHead ? head : body,
+                                size: CGSize(width: size.width * inset, height: size.height * inset))
+        }
+    }
+}
+
+enum SkinCatalog {
+    static let defaultID = "og"
+
+    static let all: [Skin] = [
+        // Free (3)
+        Skin(id: "og", name: "og", tier: .free, style: .textures(tint: .white, blend: 0)),
+        Skin(id: "paper", name: "paper", tier: .free,
+             style: .flat(body: Palette.paper.withAlphaComponent(0.85), head: Palette.paper)),
+        Skin(id: "ember", name: "ember", tier: .free,
+             style: .textures(tint: Palette.orange, blend: 0.75)),
+        // Premium
+        Skin(id: "duo", name: "duo blue", tier: .premium,
+             style: .textures(tint: Palette.blue, blend: 0.85)),
+        Skin(id: "gold", name: "gold", tier: .premium,
+             style: .textures(tint: UIColor(red: 0.95, green: 0.76, blue: 0.25, alpha: 1), blend: 0.8)),
+        Skin(id: "ghost", name: "ghost", tier: .premium,
+             style: .flat(body: UIColor(white: 1, alpha: 0.18), head: UIColor(white: 1, alpha: 0.6))),
+        Skin(id: "signal", name: "signal", tier: .premium,
+             style: .flat(body: Palette.orange, head: Palette.paper)),
+        Skin(id: "indigo", name: "indigo", tier: .premium,
+             style: .flat(body: .systemIndigo, head: Palette.paper)),
+    ]
+
+    static func skin(id: String?) -> Skin? { all.first { $0.id == id } }
+}
+
+// MARK: - Maps
+
+struct GameMap: Identifiable, Equatable {
+    enum Edges: Equatable {
+        case wrap   // classic: leave one side, enter the other
+        case kill   // touching the edge ends the run
+    }
+
+    let id: String
+    let name: String
+    let tier: CosmeticTier
+    /// Fill behind the board area. Black keeps the original look.
+    let background: UIColor
+    /// Optional second color drawn as a checker (grass pattern). nil = flat.
+    let checker: UIColor?
+    let obstacleColor: UIColor
+    let obstacles: Set<GridCell>
+    let edges: Edges
+
+    /// True when the score is not directly comparable with the classic board.
+    var changesDifficulty: Bool { !obstacles.isEmpty || edges == .kill }
+}
+
+enum MapCatalog {
+    static let defaultID = "void"
+    static let columns = 18
+    static let rows = 32
+
+    static let all: [GameMap] = [
+        // Free (3)
+        GameMap(id: "void", name: "void", tier: .free, background: .black, checker: nil,
+                obstacleColor: Palette.paper, obstacles: [], edges: .wrap),
+        GameMap(id: "lawn", name: "lawn", tier: .free,
+                background: UIColor(red: 0.05, green: 0.12, blue: 0.06, alpha: 1),
+                checker: UIColor(red: 0.06, green: 0.14, blue: 0.07, alpha: 1),
+                obstacleColor: Palette.paper, obstacles: [], edges: .wrap),
+        GameMap(id: "concrete", name: "concrete", tier: .free,
+                background: UIColor(white: 0.09, alpha: 1), checker: nil,
+                obstacleColor: Palette.paper, obstacles: [], edges: .wrap),
+        // Premium
+        GameMap(id: "pillars", name: "pillars", tier: .premium, background: .black, checker: nil,
+                obstacleColor: Palette.paper, obstacles: pillars(), edges: .wrap),
+        GameMap(id: "box", name: "box", tier: .premium,
+                background: UIColor(white: 0.06, alpha: 1), checker: nil,
+                obstacleColor: Palette.paper, obstacles: [], edges: .kill),
+        GameMap(id: "cross", name: "cross", tier: .premium, background: .black, checker: nil,
+                obstacleColor: Palette.orange, obstacles: cross(), edges: .wrap),
+        GameMap(id: "yard", name: "yard", tier: .premium,
+                background: UIColor(red: 0.05, green: 0.12, blue: 0.06, alpha: 1),
+                checker: UIColor(red: 0.06, green: 0.14, blue: 0.07, alpha: 1),
+                obstacleColor: UIColor(red: 0.45, green: 0.32, blue: 0.2, alpha: 1),
+                obstacles: fences(), edges: .kill),
+    ]
+
+    static func map(id: String?) -> GameMap? { all.first { $0.id == id } }
+
+    // 2x2 pillars in a loose grid.
+    private static func pillars() -> Set<GridCell> {
+        var s = Set<GridCell>()
+        for cx in [4, 12] {
+            for cy in [6, 15, 25] {
+                for dx in 0..<2 { for dy in 0..<2 { s.insert(GridCell(cx + dx, cy + dy)) } }
+            }
+        }
+        return s
+    }
+
+    // A plus sign in the middle with gaps so the snake can pass.
+    private static func cross() -> Set<GridCell> {
+        var s = Set<GridCell>()
+        for y in 8..<24 where !(14...17).contains(y) { s.insert(GridCell(9, y)) }
+        for x in 3..<15 where !(8...10).contains(x) { s.insert(GridCell(x, 16)) }
+        return s
+    }
+
+    // Short fence rows on a walled board.
+    private static func fences() -> Set<GridCell> {
+        var s = Set<GridCell>()
+        for x in 3..<8 { s.insert(GridCell(x, 9)) }
+        for x in 10..<15 { s.insert(GridCell(x, 9)) }
+        for x in 5..<13 { s.insert(GridCell(x, 15)) }
+        for x in 3..<8 { s.insert(GridCell(x, 27)) }
+        for x in 10..<15 { s.insert(GridCell(x, 27)) }
+        return s
+    }
+}
+
+enum Palette {
+    static let paper = UIColor(red: 0.961, green: 0.953, blue: 0.937, alpha: 1)
+    static let orange = UIColor(red: 1.0, green: 0.31, blue: 0.0, alpha: 1)
+    static let blue = UIColor(red: 0.184, green: 0.357, blue: 1.0, alpha: 1)
+}
