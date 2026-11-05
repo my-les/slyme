@@ -244,6 +244,11 @@ final class OnlineSession {
     private func resendStart() { if let s = startMessage { send(s) } }
 
     private func startRound(seed: UInt64) {
+        var seed = seed
+        #if DEBUG
+        // Freeze screenshots of host vs guest must show the same match.
+        if ProcessInfo.processInfo.arguments.contains("-slymeFreeze") { seed = 42 }
+        #endif
         guard let h = remoteHello else { return }
         let r = round &+ 1
         let map = phase == .handshake ? OnlineSession.chooseMap(hostMap: localMap, guestOwned: h.owned) : mapID

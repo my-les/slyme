@@ -32,6 +32,8 @@ final class OnlineMatchScene: SKScene {
     private var overlay: SKNode?
     private var swipeStart: CGPoint?
     private var clock: TimeInterval = 0
+    /// Guest sees a 180° board so their snake starts at the bottom.
+    private var flipsBoard: Bool { session.role == .guest }
 
     private let impact = UIImpactFeedbackGenerator(style: .rigid)
     private let notify = UINotificationFeedbackGenerator()
@@ -39,7 +41,7 @@ final class OnlineMatchScene: SKScene {
 
     #if DEBUG
     /// Loopback demo: the opponent (and optionally you) driven by a bot.
-    private var demoGuest: OnlineSession?
+    private var demoPeer: OnlineSession?
     private var demoLink: LoopbackLink?
     private var demoAutopilot = false
     #endif
@@ -52,16 +54,20 @@ final class OnlineMatchScene: SKScene {
     required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     #if DEBUG
-    /// Screenshot/demo: host session vs an in-process bot over a LoopbackLink.
-    static func loopbackDemo(size: CGSize, autopilot: Bool) -> OnlineMatchScene {
+    /// Screenshot/demo: host vs an in-process bot over a LoopbackLink.
+    /// Pass `asGuest: true` (or launch with -slymeOnlineAsGuest) to render the
+    /// guest's flipped view of the same match.
+    static func loopbackDemo(size: CGSize, autopilot: Bool, asGuest: Bool = false) -> OnlineMatchScene {
         let link = LoopbackLink(); link.autoDeliver = true
         let host = OnlineSession(transport: link.a, localID: "A", skin: EntitlementStore.shared.selectedSkin.id,
                                  map: EntitlementStore.shared.selectedMap.id,
                                  ownedMaps: MapCatalog.all.map(\.id), nonce: 2)
         let guest = OnlineSession(transport: link.b, localID: "B", skin: "ember", map: MapCatalog.defaultID,
                                   ownedMaps: MapCatalog.all.filter { $0.tier == .free }.map(\.id), nonce: 1)
-        let s = OnlineMatchScene(size: size, session: host, opponentName: "bot")
-        s.demoGuest = guest; s.demoLink = link; s.demoAutopilot = autopilot
+        let view = asGuest ? guest : host
+        let peer = asGuest ? host : guest
+        let s = OnlineMatchScene(size: size, session: view, opponentName: asGuest ? "host" : "bot")
+        s.demoPeer = peer; s.demoLink = link; s.demoAutopilot = autopilot
         return s
     }
     #endif
@@ -87,7 +93,7 @@ final class OnlineMatchScene: SKScene {
                                                name: UIScene.didActivateNotification, object: nil)
         session.begin(now: clock)
         #if DEBUG
-        demoGuest?.begin(now: clock)
+        demoPeer?.begin(now: clock)
         #endif
         showConnecting()
     }
@@ -178,11 +184,19 @@ final class OnlineMatchScene: SKScene {
         let map = MapCatalog.map(id: session.mapID) ?? MapCatalog.all[0]
         let layer = MapRenderer.board(for: map, cell: cellSize, previewFloor: false)
         layer.name = "mapLayer"; layer.position = CGPoint(x: boardRect.midX, y: boardRect.midY); layer.zPosition = -1
+        // Rotate the floor/obstacles 180° so asymmetric maps stay aligned with flipped snakes.
+        if flipsBoard { layer.zRotation = .pi }
         addChild(layer)
     }
 
+    private func viewCell(_ c: GridCell) -> GridCell {
+        flipsBoard ? OnlineViewFlip.cell(c) : c
+    }
+
     private func point(_ c: GridCell) -> CGPoint {
-        CGPoint(x: boardRect.minX + (CGFloat(c.x) + 0.5) * cellSize, y: boardRect.minY + (CGFloat(c.y) + 0.5) * cellSize)
+        let v = viewCell(c)
+        return CGPoint(x: boardRect.minX + (CGFloat(v.x) + 0.5) * cellSize,
+                       y: boardRect.minY + (CGFloat(v.y) + 0.5) * cellSize)
     }
 
     private func skin(_ p: PlayerID) -> Skin {
@@ -199,8 +213,12 @@ final class OnlineMatchScene: SKScene {
         guard let st = session.state, st.snakes.count == 2 else { return }
         for p in [PlayerID.one, .two] {
             let s = st.snakes[p.rawValue]
-            let cells = s.body.map { ($0.x, $0.y) }
-            let mv = CGVector(dx: s.direction.dx, dy: s.direction.dy)
+            // Texture picking uses the cells as drawn, so a flipped view gets
+            // head_up when the snake is moving toward the top of the guest's screen.
+            let drawn = s.body.map(viewCell)
+            let cells = drawn.map { ($0.x, $0.y) }
+            let vd = flipsBoard ? OnlineViewFlip.direction(s.direction) : s.direction
+            let mv = CGVector(dx: vd.dx, dy: vd.dy)
             for (i, c) in cells.enumerated() {
                 let prev = i > 0 ? cells[i - 1] : nil
                 let next = i < cells.count - 1 ? cells[i + 1] : nil
@@ -244,10 +262,21 @@ final class OnlineMatchScene: SKScene {
         clock = currentTime
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-slymeFreeze") && session.state?.tick ?? 0 >= 28 { return }
-        if let g = demoGuest {
-            g.advance(now: currentTime)
-            if let st = g.state, let d = OnlineMatchScene.botMove(st, me: .two), d != st.snakes[1].direction { g.localTurn(d) }
-            if demoAutopilot, let st = session.state, let d = OnlineMatchScene.botMove(st, me: .one), d != st.snakes[0].direction { session.localTurn(d) }
+        if let peer = demoPeer {
+            // The host session must keep ticking regardless of which side we render.
+            let hostSide = session.role == .host ? session : peer
+            let guestSide = session.role == .guest ? session : peer
+            hostSide.advance(now: currentTime)
+            guestSide.advance(now: currentTime)
+            if let st = hostSide.state {
+                if let d = OnlineMatchScene.botMove(st, me: .two), d != st.snakes[1].direction {
+                    guestSide.localTurn(d)
+                }
+                if demoAutopilot, let d = OnlineMatchScene.botMove(st, me: .one), d != st.snakes[0].direction {
+                    hostSide.localTurn(d)
+                }
+            }
+            return
         }
         #endif
         session.advance(now: currentTime)
@@ -371,7 +400,10 @@ final class OnlineMatchScene: SKScene {
         let loc = t.location(in: self)
         let dx = loc.x - s.x, dy = loc.y - s.y
         guard max(abs(dx), abs(dy)) >= TwoPlayerConfig.swipeThreshold else { return }
-        session.localTurn(abs(dx) > abs(dy) ? (dx > 0 ? .right : .left) : (dy > 0 ? .up : .down))
+        let screen: Direction = abs(dx) > abs(dy) ? (dx > 0 ? .right : .left) : (dy > 0 ? .up : .down)
+        // Guest view is flipped: swipe up on screen → board .down, so the snake
+        // moves toward the top of THEIR screen. Host sends screen dirs as-is.
+        session.localTurn(flipsBoard ? OnlineViewFlip.boardDirection(fromScreen: screen) : screen)
         swipeStart = loc
     }
 

@@ -263,3 +263,55 @@ final class OnlineSessionTests: XCTestCase {
         XCTAssertEqual(host.rtt ?? -1, 0.05, accuracy: 0.002)
     }
 }
+
+final class OnlineViewFlipTests: XCTestCase {
+    func testCellFlipIsInvolution() {
+        let cells = [GridCell(0, 0), GridCell(17, 31), GridCell(4, 12), GridCell(9, 16)]
+        for c in cells {
+            XCTAssertEqual(OnlineViewFlip.cell(OnlineViewFlip.cell(c)), c)
+        }
+    }
+
+    func testCornersSwap() {
+        XCTAssertEqual(OnlineViewFlip.cell(GridCell(0, 0)), GridCell(17, 31))
+        XCTAssertEqual(OnlineViewFlip.cell(GridCell(17, 31)), GridCell(0, 0))
+        XCTAssertEqual(OnlineViewFlip.cell(GridCell(0, 31)), GridCell(17, 0))
+        XCTAssertEqual(OnlineViewFlip.cell(GridCell(17, 0)), GridCell(0, 31))
+    }
+
+    func testGuestStartAppearsAtBottom() {
+        // Host P1 starts low-left; guest P2 starts high-right. After flip the
+        // guest's head is in the low-left quadrant of THEIR screen.
+        let board = VersusBoard()
+        let (_, p2) = VersusMatch.startSnakes(board: board)
+        let v = OnlineViewFlip.cell(p2.head)
+        XCTAssertLessThan(v.x, MapCatalog.columns / 2)
+        XCTAssertLessThan(v.y, MapCatalog.rows / 2)
+    }
+
+    func testDirectionsAreOpposites() {
+        for d in Direction.allCases {
+            XCTAssertEqual(OnlineViewFlip.direction(d), d.opposite)
+            XCTAssertEqual(OnlineViewFlip.boardDirection(fromScreen: d), d.opposite)
+            XCTAssertEqual(OnlineViewFlip.direction(OnlineViewFlip.direction(d)), d)
+        }
+    }
+
+    func testSwipeUpOnGuestScreenIsBoardDown() {
+        // Guest wants the snake to move toward the top of THEIR screen when
+        // they swipe up. Top of their screen is board-down after the flip.
+        XCTAssertEqual(OnlineViewFlip.boardDirection(fromScreen: .up), .down)
+        XCTAssertEqual(OnlineViewFlip.boardDirection(fromScreen: .down), .up)
+        XCTAssertEqual(OnlineViewFlip.boardDirection(fromScreen: .left), .right)
+        XCTAssertEqual(OnlineViewFlip.boardDirection(fromScreen: .right), .left)
+    }
+
+    func testObstacleFlipKeepsRelativeAlignment() {
+        // An obstacle and a snake cell that share a board neighbour stay
+        // neighbours after the view flip (map art rotates with the snakes).
+        let a = GridCell(4, 6), b = GridCell(5, 6)
+        let fa = OnlineViewFlip.cell(a), fb = OnlineViewFlip.cell(b)
+        XCTAssertEqual(abs(fa.x - fb.x) + abs(fa.y - fb.y), abs(a.x - b.x) + abs(a.y - b.y))
+        XCTAssertEqual(OnlineViewFlip.cell(GridCell(4, 6)), GridCell(13, 25)) // pillars corner sample
+    }
+}

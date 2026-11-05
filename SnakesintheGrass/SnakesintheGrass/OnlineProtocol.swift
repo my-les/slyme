@@ -216,3 +216,24 @@ final class SeededRNG: RandomNumberGenerator {
     /// Deterministic pick (no reliance on stdlib's randomElement algorithm).
     func pick<T>(_ a: [T]) -> T? { a.isEmpty ? nil : a[Int(next() % UInt64(a.count))] }
 }
+
+// MARK: - Guest view flip (display only; board coords on the wire stay unchanged)
+
+/// 180° view transform so the guest sees their snake at the bottom of their
+/// screen, the way the host sees theirs. Pure and unit-tested. The host
+/// simulation and every OnlineMessage still use board coordinates.
+enum OnlineViewFlip {
+    /// Board cell → screen cell for a flipped (guest) view.
+    static func cell(_ c: GridCell,
+                     columns: Int = MapCatalog.columns,
+                     rows: Int = MapCatalog.rows) -> GridCell {
+        GridCell(columns - 1 - c.x, rows - 1 - c.y)
+    }
+
+    /// Board direction → on-screen direction (or the reverse). A 180° rotate
+    /// maps every direction to its opposite.
+    static func direction(_ d: Direction) -> Direction { d.opposite }
+
+    /// Screen swipe → board direction the host expects. Only the guest uses this.
+    static func boardDirection(fromScreen d: Direction) -> Direction { d.opposite }
+}

@@ -60,9 +60,23 @@ Connect matchmaking rule sets then.
 ## DEBUG helpers
 - `-slymeStart online` lobby, `-slymeStart onlinefinding` lobby in "finding" state,
   `-slymeStart onlinedemo` full match vs a bot over `LoopbackLink` (both snakes on autopilot);
-  add `-slymeFreeze` to freeze at tick 28 for screenshots.
+  add `-slymeOnlineAsGuest` to render the guest's flipped view, and `-slymeFreeze` to freeze at
+  tick 28 for screenshots.
+
+## Guest view flip
+The guest's board is drawn rotated 180° so their snake starts at the **bottom** of their screen,
+the way the host's does. Purely a view transform in `OnlineMatchScene` (`OnlineViewFlip`):
+- Grid cells, apple and snake segments map through `OnlineViewFlip.cell` (and snake textures are
+  picked from the flipped cells so heads point the right way on screen).
+- Map floor/obstacles use the same `MapRenderer` node with `zRotation = .pi`, so asymmetric maps
+  (pillars, yard fences) stay aligned with the snakes.
+- HUD labels stay upright.
+- Guest swipes are mapped with `OnlineViewFlip.boardDirection(fromScreen:)` before they go on the
+  wire: swipe up on the guest's screen → board `.down`, so the snake moves toward the top of THEIR
+  screen. The host simulation and every `OnlineMessage` still use board coordinates.
+Unit tests: `OnlineViewFlipTests`. DEBUG: `-slymeStart onlinedemo -slymeOnlineAsGuest` shows the
+guest view of the loopback demo.
 
 ## Not done / ideas
 - No client-side prediction for the guest's own head; add if guests feel lag.
-- No board flip for the guest (guest starts top-right). Could rotate the board 180° and remap swipes.
 - Ranked/leaderboard for online wins, Game Center achievements, spectating, best-of-3.
