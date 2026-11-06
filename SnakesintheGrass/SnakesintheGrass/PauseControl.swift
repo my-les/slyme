@@ -39,7 +39,7 @@ enum PauseControl {
     }
 
     private static func pausePath(in r: CGFloat) -> CGPath {
-        let w = r * 0.28, h = r * 0.95, gap = r * 0.2
+        let w = r * 0.18, h = r * 0.88, gap = r * 0.22
         let path = CGMutablePath()
         path.addRoundedRect(in: CGRect(x: -gap - w, y: -h / 2, width: w, height: h),
                             cornerWidth: w * 0.25, cornerHeight: w * 0.25)
