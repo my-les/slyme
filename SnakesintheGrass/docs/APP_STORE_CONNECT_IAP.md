@@ -14,6 +14,7 @@ Nothing here has been created in App Store Connect yet.
 | skin gold | com.ysdwysd.skin.gold | Non-Consumable | $0.99 | gold skin | A gold snake skin. |
 | skin ghost | com.ysdwysd.skin.ghost | Non-Consumable | $0.99 | ghost skin | A see-through ghost snake skin. |
 | skin indigo | com.ysdwysd.skin.indigo | Non-Consumable | $0.99 | indigo skin | A deep indigo snake skin. |
+| skin pink | com.ysdwysd.skin.pink | Non-Consumable | $0.99 | pink skin | A bright pink snake skin. |
 | map pillars | com.ysdwysd.map.pillars | Non-Consumable | $1.99 | pillars map | A board full of pillars to dodge. |
 | map box | com.ysdwysd.map.box | Non-Consumable | $1.99 | box map | Walled board: hit the edge and the run ends. |
 | map cross | com.ysdwysd.map.cross | Non-Consumable | $1.99 | cross map | A cross of blocks splits the board. |
@@ -43,10 +44,10 @@ Add review notes: "Customize > tap any locked item. Restore purchases is on the 
 
 1. **Agreements, Tax, and Banking**: Paid Apps agreement active (Account Holder must accept), bank
    account and tax forms complete. IAPs stay "Missing Metadata"/unbuyable until this is done.
-2. Create the 11 products above with price, at least one localization (English US), review
+2. Create the 12 products above with price, at least one localization (English US), review
    screenshot and review notes. Status should become **Ready to Submit**.
 3. Bump the version (current live 1.1 > e.g. 1.2) and build number, archive, upload.
-4. On the new version page, in **In-App Purchases and Subscriptions**, add all 11 products so they
+4. On the new version page, in **In-App Purchases and Subscriptions**, add all 12 products so they
    are reviewed with that build. (First-time IAPs must be submitted with an app version.)
 5. Sandbox test on a real device: Users and Access > Sandbox > create a tester; on device
    Settings > Developer > Sandbox Apple Account. Test buy single, buy pack, cancel, Ask to Buy
