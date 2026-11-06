@@ -41,7 +41,19 @@ final class CustomizeScene: SKScene {
             MainActor.assumeIsolated { self?.build() }
         }
         if shop.products.isEmpty { Task { await shop.loadProducts() } }
+        let b = view.bounds.size
+        if b.width > 1, b.height > 1, (abs(b.width - size.width) > 0.5 || abs(b.height - size.height) > 0.5) {
+            size = b
+        }
         build()
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let v = self.view else { return }
+            let b = v.bounds.size
+            if b.width > 1, b.height > 1, (abs(b.width - self.size.width) > 0.5 || abs(b.height - self.size.height) > 0.5) {
+                self.size = b
+            }
+            self.build()
+        }
     }
 
     override func willMove(from view: SKView) {
@@ -56,6 +68,7 @@ final class CustomizeScene: SKScene {
 
     private var safeRect: CGRect {
         let i = view?.safeAreaInsets ?? .zero
+        // Full safe area (no hinge half). Cards stay centered on Duo flat/outer.
         return CGRect(x: i.left, y: i.bottom,
                       width: max(0, size.width - i.left - i.right),
                       height: max(0, size.height - i.top - i.bottom)).insetBy(dx: 24, dy: 16)
@@ -103,7 +116,8 @@ final class CustomizeScene: SKScene {
         // Grid area between tabs and pager/toast.
         let skins = SkinCatalog.visible(owned: { store.isUnlocked(skinID: $0.id) })
         let count = page == .skins ? skins.count : MapCatalog.all.count
-        let grid = CGRect(x: r.minX, y: r.minY + 128, width: r.width, height: (tabsY - 28) - (r.minY + 128))
+        // Footer band (restore/back/pager) is ~100pt; use the rest for cards.
+        let grid = CGRect(x: r.minX, y: r.minY + 100, width: r.width, height: max(0, (tabsY - 28) - (r.minY + 100)))
         let columns = grid.width >= 600 ? 4 : (grid.width >= 420 ? 3 : 2)
         let gap: CGFloat = 16
         let cellW = (grid.width - gap * CGFloat(columns - 1)) / CGFloat(columns)
@@ -116,7 +130,8 @@ final class CustomizeScene: SKScene {
         let range = (pageIndex * perPage)..<min(count, (pageIndex + 1) * perPage)
         let rowsN = max(1, Int(ceil(Double(range.count) / Double(columns))))
         let rowsForSize = pageCount > 1 ? maxRows : rowsN
-        let cellH = min((grid.height - gap * CGFloat(rowsForSize - 1)) / CGFloat(rowsForSize), cellW * 1.25)
+        let cellH = min((grid.height - gap * CGFloat(rowsForSize - 1)) / CGFloat(rowsForSize),
+                        page == .maps ? cellW * 1.55 : cellW * 1.25)
         let totalH = cellH * CGFloat(rowsN) + gap * CGFloat(rowsN - 1)
         let top = pageCount > 1 ? grid.maxY : grid.midY + totalH / 2
 

@@ -7,58 +7,89 @@
 
 import Foundation
 import SpriteKit
+import UIKit
 
 class MainMenu: SKScene {
 
     override func didMove(to view: SKView) {
         backgroundColor = .black
-
-        // Create the title label
-        let titleLabel = SKLabelNode(text: "slyme")
-        titleLabel.fontName = "CourierNewPS-BoldMT"
-        titleLabel.fontSize = 30
-        titleLabel.fontColor = .systemIndigo
-        titleLabel.position = CGPoint(x: size.width / 2, y: size.height / 2 + 100)
-        addChild(titleLabel)
-
-        // Create the subtitle
-        let subsubTItleLabel = SKLabelNode(text: "当你停止梦想时，你就开始走向衰亡")
-        subsubTItleLabel.fontName = "CourierNewPS-BoldMT"
-        subsubTItleLabel.fontSize = 12
-        subsubTItleLabel.fontColor = .gray
-        subsubTItleLabel.position = CGPoint(x: size.width / 2, y: size.height / 2 + 80)
-        //addChild(subsubTItleLabel)
-
-        let subtitleLabel = SKLabelNode(text: "eat or be ate.")
-        subtitleLabel.fontName = "CourierNewPS-BoldMT"
-        subtitleLabel.fontSize = 14
-        subtitleLabel.fontColor = .red
-        subtitleLabel.position = CGPoint(x: size.width / 2, y: size.height / 2 + 80)
-        addChild(subtitleLabel)
-
-        // Create the Play button
-        let playButton = createButton(withText: "play", name: "playButton", position: CGPoint(x: size.width / 2, y: size.height / 2))
-        addChild(playButton)
-
-        let twoPlayerButton = createButton(withText: "2 players", name: "twoPlayerButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 60))
-        addChild(twoPlayerButton)
-
-        // Create the About button
-        let onlineButton = createButton(withText: "online", name: "onlineButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 120))
-        addChild(onlineButton)
-
-        let aboutButton = createButton(withText: "instructions", name: "aboutButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 180))
-        addChild(aboutButton)
-
-        // Create the High Scores button
-        let highScoresButton = createButton(withText: "high scores", name: "highScoresButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 240))
-        addChild(highScoresButton)
-
-        let customizeButton = createButton(withText: "customize", name: "customizeButton", position: CGPoint(x: size.width / 2, y: size.height / 2 - 300))
-        addChild(customizeButton)
-
-        // Initialize GameCenter
+        // Rebuild every time we land on a view: SpriteView / Duo can call
+        // didMove more than once as the size settles, and adding without
+        // clearing produced the ghosted double menu on device.
+        syncSize(from: view)
+        layoutMenu()
+        // Size often settles one run-loop later on Duo / multi-display.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let v = self.view else { return }
+            self.syncSize(from: v)
+            self.layoutMenu()
+        }
         GameCenterManager.shared.authenticatePlayer()
+    }
+
+    override func didChangeSize(_ oldSize: CGSize) {
+        super.didChangeSize(oldSize)
+        // Size often starts small (or .zero from ContentView) then jumps to the
+        // real bounds on Duo / iPad. Relayout so the menu stays centered.
+        if view != nil { layoutMenu() }
+    }
+
+    /// Keep scene.size matched to the SKView. SpriteView + Duo can leave them
+    /// out of sync, which parked the menu in a corner of a larger canvas.
+    private func syncSize(from view: SKView) {
+        let b = view.bounds.size
+        guard b.width > 1, b.height > 1 else { return }
+        if abs(b.width - size.width) > 0.5 || abs(b.height - size.height) > 0.5 {
+            size = b
+        }
+    }
+
+    /// Safe play rect. Menu stays centered on the full screen: we do NOT
+    /// shrink to a Duo hinge half here (that parked the menu in a corner when
+    /// a division region was reported active while flat). Game scenes still
+    /// use reservedRegions for board / HUD splits.
+    private func contentRect() -> CGRect {
+        let ins = view?.safeAreaInsets ?? .zero
+        return CGRect(x: ins.left, y: ins.bottom,
+                      width: max(0, size.width - ins.left - ins.right),
+                      height: max(0, size.height - ins.top - ins.bottom))
+    }
+
+    private func layoutMenu() {
+        removeAllChildren()
+        backgroundColor = .black
+        let r = contentRect()
+        guard r.width > 0, r.height > 0 else { return }
+        let cx = r.midX, cy = r.midY
+
+        let title = SKLabelNode(text: "slyme")
+        title.fontName = "CourierNewPS-BoldMT"
+        title.fontSize = 30
+        title.fontColor = .systemIndigo
+        title.verticalAlignmentMode = .center
+        title.position = CGPoint(x: cx, y: cy + 100)
+        addChild(title)
+
+        let subtitle = SKLabelNode(text: "eat or be ate.")
+        subtitle.fontName = "CourierNewPS-BoldMT"
+        subtitle.fontSize = 14
+        subtitle.fontColor = .red
+        subtitle.verticalAlignmentMode = .center
+        subtitle.position = CGPoint(x: cx, y: cy + 70)
+        addChild(subtitle)
+
+        // Same-device "2 players" intentionally omitted; online covers multiplayer.
+        let items: [(String, String)] = [
+            ("play", "playButton"),
+            ("online", "onlineButton"),
+            ("instructions", "aboutButton"),
+            ("high scores", "highScoresButton"),
+            ("customize", "customizeButton"),
+        ]
+        for (i, item) in items.enumerated() {
+            addChild(createButton(withText: item.0, name: item.1,
+                                  position: CGPoint(x: cx, y: cy - CGFloat(i) * 55)))
+        }
     }
 
     private func createButton(withText text: String, name: String, position: CGPoint) -> SKLabelNode {
@@ -66,6 +97,7 @@ class MainMenu: SKScene {
         button.fontName = "CourierNewPS-BoldMT"
         button.fontSize = 20
         button.fontColor = .darkGray
+        button.verticalAlignmentMode = .center
         button.position = position
         button.name = name
         return button
@@ -95,10 +127,6 @@ class MainMenu: SKScene {
 
                 """
                 )
-            } else if node.name == "twoPlayerButton" {
-                let setup = TwoPlayerSetupScene(size: self.size)
-                setup.scaleMode = .resizeFill
-                view?.presentScene(setup, transition: .fade(withDuration: 0.4))
             } else if node.name == "onlineButton" {
                 let lobby = OnlineLobbyScene(size: self.size)
                 lobby.scaleMode = .resizeFill
