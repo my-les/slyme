@@ -25,6 +25,7 @@ final class CustomizeScene: SKScene {
     private var sheetKey: String?
     private var sheetMessage: String?
     private var busy = false
+    private var layoutGeneration = 0
     private var storeObserver: NSObjectProtocol?
 
     init(size: CGSize, page: Page = .skins) {
@@ -63,7 +64,28 @@ final class CustomizeScene: SKScene {
 
     override func didChangeSize(_ oldSize: CGSize) {
         super.didChangeSize(oldSize)
-        if view != nil { build() }
+        // Rotation: insets often lag the size flip — rebuild now and once more after.
+        if view != nil { requestBuild() }
+    }
+
+    private func requestBuild() {
+        layoutGeneration &+= 1
+        let gen = layoutGeneration
+        if let v = view {
+            let b = v.bounds.size
+            if b.width > 1, b.height > 1, (abs(b.width - size.width) > 0.5 || abs(b.height - size.height) > 0.5) {
+                size = b
+            }
+        }
+        build()
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.layoutGeneration == gen, let v = self.view else { return }
+            let b = v.bounds.size
+            if b.width > 1, b.height > 1, (abs(b.width - self.size.width) > 0.5 || abs(b.height - self.size.height) > 0.5) {
+                self.size = b
+            }
+            self.build()
+        }
     }
 
     private var safeRect: CGRect {

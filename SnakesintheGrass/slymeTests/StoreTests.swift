@@ -103,6 +103,38 @@ final class StoreTests: XCTestCase {
         }
     }
 
+
+    /// Writes portrait + landscape menu PNGs to /tmp (no device rotate).
+    /// Skipped unless /tmp/slyme_shoot_menu exists.
+    func testZZShowMenuOrientations() async throws {
+        try XCTSkipUnless(FileManager.default.fileExists(atPath: "/tmp/slyme_shoot_menu"))
+        for (label, size) in [("portrait", CGSize(width: 390, height: 844)),
+                              ("landscape", CGSize(width: 844, height: 390))] {
+            let view = SKView(frame: CGRect(origin: .zero, size: size))
+            let scene = MainMenu(size: size)
+            scene.scaleMode = .resizeFill
+            view.presentScene(scene)
+            scene.didChangeSize(.zero)
+            try await Task.sleep(nanoseconds: 150_000_000)
+            scene.didChangeSize(size)
+            try await Task.sleep(nanoseconds: 150_000_000)
+            XCTAssertLessThanOrEqual(scene.children.count, 8)
+            XCTAssertFalse(scene.children.contains { $0.name == "twoPlayerButton" })
+            let mid = size.width / 2
+            for node in scene.children {
+                XCTAssertEqual(node.position.x, mid, accuracy: 1.5)
+            }
+            guard let tex = view.texture(from: scene) else {
+                XCTFail("could not render \(label)"); continue
+            }
+            let img = tex.cgImage()
+            let ui = UIImage(cgImage: img)
+            let url = URL(fileURLWithPath: "/tmp/slyme-menu-\(label).png")
+            try XCTUnwrap(ui.pngData()).write(to: url)
+            FileManager.default.createFile(atPath: "/tmp/slyme_shoot_ready_menu_\(label)", contents: nil)
+        }
+    }
+
     private static func findSKView() -> SKView? {
         func walk(_ v: UIView) -> SKView? {
             if let s = v as? SKView { return s }

@@ -10,32 +10,49 @@ import SpriteKit
 import UIKit
 
 class MainMenu: SKScene {
+    /// Bumped on every layout request so stale async rebuilds are ignored.
+    private var layoutGeneration = 0
 
     override func didMove(to view: SKView) {
         backgroundColor = .black
-        // Rebuild every time we land on a view: SpriteView / Duo can call
-        // didMove more than once as the size settles, and adding without
-        // clearing produced the ghosted double menu on device.
-        syncSize(from: view)
-        layoutMenu()
-        // Size often settles one run-loop later on Duo / multi-display.
-        DispatchQueue.main.async { [weak self] in
-            guard let self, let v = self.view else { return }
-            self.syncSize(from: v)
-            self.layoutMenu()
-        }
+        // Rebuild every time we land on a view. Always clear first — stacking
+        // without removeAllChildren caused the ghosted double menu on rotate/Duo.
+        requestLayout()
+        NotificationCenter.default.addObserver(self, selector: #selector(safeAreaMaybeChanged),
+                                               name: UIScene.didActivateNotification, object: nil)
         GameCenterManager.shared.authenticatePlayer()
+    }
+
+    override func willMove(from view: SKView) {
+        NotificationCenter.default.removeObserver(self)
+        super.willMove(from: view)
     }
 
     override func didChangeSize(_ oldSize: CGSize) {
         super.didChangeSize(oldSize)
-        // Size often starts small (or .zero from ContentView) then jumps to the
-        // real bounds on Duo / iPad. Relayout so the menu stays centered.
-        if view != nil { layoutMenu() }
+        // Rotation / fold: size flips first; safe-area insets often catch up a
+        // beat later. Rebuild now and again on the next run-loop.
+        if view != nil { requestLayout() }
     }
 
-    /// Keep scene.size matched to the SKView. SpriteView + Duo can leave them
-    /// out of sync, which parked the menu in a corner of a larger canvas.
+    @objc private func safeAreaMaybeChanged() { requestLayout() }
+
+    /// Clear + rebuild once for this generation; schedule a follow-up in case
+    /// safeAreaInsets / bounds settle after didChangeSize.
+    private func requestLayout() {
+        layoutGeneration &+= 1
+        let gen = layoutGeneration
+        if let v = view { syncSize(from: v) }
+        layoutMenu()
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.layoutGeneration == gen, let v = self.view else { return }
+            self.syncSize(from: v)
+            self.layoutMenu()
+        }
+    }
+
+    /// Keep scene.size matched to the SKView. SpriteView + rotation can leave
+    /// them out of sync and park the menu in a corner of a larger canvas.
     private func syncSize(from view: SKView) {
         let b = view.bounds.size
         guard b.width > 1, b.height > 1 else { return }
@@ -44,10 +61,7 @@ class MainMenu: SKScene {
         }
     }
 
-    /// Safe play rect. Menu stays centered on the full screen: we do NOT
-    /// shrink to a Duo hinge half here (that parked the menu in a corner when
-    /// a division region was reported active while flat). Game scenes still
-    /// use reservedRegions for board / HUD splits.
+    /// Full safe-area rect. Menu is not clipped to a Duo hinge half.
     private func contentRect() -> CGRect {
         let ins = view?.safeAreaInsets ?? .zero
         return CGRect(x: ins.left, y: ins.bottom,
@@ -62,22 +76,6 @@ class MainMenu: SKScene {
         guard r.width > 0, r.height > 0 else { return }
         let cx = r.midX, cy = r.midY
 
-        let title = SKLabelNode(text: "slyme")
-        title.fontName = "CourierNewPS-BoldMT"
-        title.fontSize = 30
-        title.fontColor = .systemIndigo
-        title.verticalAlignmentMode = .center
-        title.position = CGPoint(x: cx, y: cy + 100)
-        addChild(title)
-
-        let subtitle = SKLabelNode(text: "eat or be ate.")
-        subtitle.fontName = "CourierNewPS-BoldMT"
-        subtitle.fontSize = 14
-        subtitle.fontColor = .red
-        subtitle.verticalAlignmentMode = .center
-        subtitle.position = CGPoint(x: cx, y: cy + 70)
-        addChild(subtitle)
-
         // Same-device "2 players" intentionally omitted; online covers multiplayer.
         let items: [(String, String)] = [
             ("play", "playButton"),
@@ -86,9 +84,35 @@ class MainMenu: SKScene {
             ("high scores", "highScoresButton"),
             ("customize", "customizeButton"),
         ]
+        // Fit title + subtitle + N items into the safe height (landscape is short).
+        let titleBlock: CGFloat = 70
+        let needed: CGFloat = titleBlock + CGFloat(items.count - 1) * 55 + 20
+        let step: CGFloat = needed > r.height - 20
+            ? max(36, (r.height - titleBlock - 20) / CGFloat(max(1, items.count - 1)))
+            : 55
+        let stackH = titleBlock + CGFloat(items.count - 1) * step
+        let top = cy + stackH / 2
+
+        let title = SKLabelNode(text: "slyme")
+        title.fontName = "CourierNewPS-BoldMT"
+        title.fontSize = 30
+        title.fontColor = .systemIndigo
+        title.verticalAlignmentMode = .center
+        title.position = CGPoint(x: cx, y: top)
+        addChild(title)
+
+        let subtitle = SKLabelNode(text: "eat or be ate.")
+        subtitle.fontName = "CourierNewPS-BoldMT"
+        subtitle.fontSize = 14
+        subtitle.fontColor = .red
+        subtitle.verticalAlignmentMode = .center
+        subtitle.position = CGPoint(x: cx, y: top - 30)
+        addChild(subtitle)
+
+        let firstItemY = top - titleBlock
         for (i, item) in items.enumerated() {
             addChild(createButton(withText: item.0, name: item.1,
-                                  position: CGPoint(x: cx, y: cy - CGFloat(i) * 55)))
+                                  position: CGPoint(x: cx, y: firstItemY - CGFloat(i) * step)))
         }
     }
 

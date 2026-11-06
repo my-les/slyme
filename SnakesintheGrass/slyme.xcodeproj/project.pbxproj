@@ -31,6 +31,7 @@
 		A1C0FFEE0000001700000000 /* TwoPlayerSetupScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */; };
 		B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */; };
 		D4C0FFEE0000005000000000 /* OnlineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C0FFEE0000004000000000 /* OnlineTests.swift */; };
+		E5C0FFEE0000001400000000 /* MainMenuLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C0FFEE0000000400000000 /* MainMenuLayoutTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		A1C0FFEE0000000700000000 /* TwoPlayerSetupScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerSetupScene.swift; sourceTree = "<group>"; };
 		B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerRulesTests.swift; sourceTree = "<group>"; };
 		D4C0FFEE0000004000000000 /* OnlineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineTests.swift; sourceTree = "<group>"; };
+		E5C0FFEE0000000400000000 /* MainMenuLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuLayoutTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,6 +156,7 @@
 				B2C0FFEE0000000100000000 /* StoreTests.swift */,
 				B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */,
 				D4C0FFEE0000004000000000 /* OnlineTests.swift */,
+				E5C0FFEE0000000400000000 /* MainMenuLayoutTests.swift */,
 			);
 			path = slymeTests;
 			sourceTree = "<group>";
@@ -287,6 +290,7 @@
 				B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */,
 				B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */,
 				D4C0FFEE0000005000000000 /* OnlineTests.swift in Sources */,
+				E5C0FFEE0000001400000000 /* MainMenuLayoutTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
