@@ -28,14 +28,8 @@ enum PauseControl {
         hit.name = "pauseButton"
         root.addChild(hit)
 
+        // No ring/border — just the bars / play triangle on the dark HUD.
         let r = diameter / 2
-        let ring = SKShapeNode(circleOfRadius: r)
-        ring.fillColor = UIColor(white: 0, alpha: 0.45)
-        ring.strokeColor = UIColor(white: 1, alpha: 0.85)
-        ring.lineWidth = 2.5
-        ring.name = "pauseButton"
-        root.addChild(ring)
-
         let glyph = SKShapeNode(path: playing ? playPath(in: r) : pausePath(in: r))
         glyph.fillColor = .white
         glyph.strokeColor = .clear
