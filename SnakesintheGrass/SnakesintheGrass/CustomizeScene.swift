@@ -137,7 +137,8 @@ final class CustomizeScene: SKScene {
 
         // Grid area between tabs and pager/toast.
         let skins = SkinCatalog.visible(owned: { store.isUnlocked(skinID: $0.id) })
-        let count = page == .skins ? skins.count : MapCatalog.all.count
+        let maps = MapCatalog.visible(owned: { store.isUnlocked(mapID: $0.id) })
+        let count = page == .skins ? skins.count : maps.count
         // Footer band (restore/back/pager) is ~100pt; use the rest for cards.
         let grid = CGRect(x: r.minX, y: r.minY + 100, width: r.width, height: max(0, (tabsY - 28) - (r.minY + 100)))
         let columns = grid.width >= 600 ? 4 : (grid.width >= 420 ? 3 : 2)
@@ -163,7 +164,7 @@ final class CustomizeScene: SKScene {
                                y: top - CGFloat(row + 1) * cellH - CGFloat(row) * gap,
                                width: cellW, height: cellH)
             addChild(page == .skins ? skinCard(skins[i], in: frame)
-                                    : mapCard(MapCatalog.all[i], in: frame))
+                                    : mapCard(maps[i], in: frame))
         }
 
         if pageCount > 1 {

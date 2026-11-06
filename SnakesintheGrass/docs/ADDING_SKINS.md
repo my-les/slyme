@@ -49,3 +49,11 @@ Premium skins sell as non-consumables with product id `com.ysdwysd.skin.<id>`
 Maps use `com.ysdwysd.map.<id>`. Also add the product to `slyme.storekit` for local testing.
 The skins/maps/everything packs automatically cover any new premium item. See
 `docs/APP_STORE_CONNECT_IAP.md`.
+
+
+## Seasonal maps
+
+`GameMap` supports the same `availableFrom` / `availableUntil` window as skins (see `feast`
+in `MapCatalog`). Use `MapCatalog.visible(owned:at:)` on the customize screen. Free seasonal
+maps need no StoreKit product — they simply appear during the window. Outside the window they
+hide unless you pass an `owned` predicate that keeps them.

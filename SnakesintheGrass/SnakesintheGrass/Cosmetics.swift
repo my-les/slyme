@@ -129,9 +129,18 @@ struct GameMap: Identifiable, Equatable {
     let obstacleColor: UIColor
     let obstacles: Set<GridCell>
     let edges: Edges
+    /// Optional seasonal window (same idea as skins). nil = always listed.
+    var availableFrom: Date? = nil
+    var availableUntil: Date? = nil
 
     /// True when the score is not directly comparable with the classic board.
     var changesDifficulty: Bool { !obstacles.isEmpty || edges == .kill }
+
+    func isAvailable(at date: Date = Date()) -> Bool {
+        if let f = availableFrom, date < f { return false }
+        if let u = availableUntil, date > u { return false }
+        return true
+    }
 }
 
 enum MapCatalog {
@@ -163,7 +172,21 @@ enum MapCatalog {
                 checker: UIColor(red: 0.06, green: 0.14, blue: 0.07, alpha: 1),
                 obstacleColor: UIColor(red: 0.45, green: 0.32, blue: 0.2, alpha: 1),
                 obstacles: fences(), edges: .kill),
+        // Seasonal free — Thanksgiving feast board (warm autumn). Visible mid-Nov → early Dec.
+        GameMap(id: "feast", name: "feast", tier: .free,
+                background: UIColor(red: 0.12, green: 0.06, blue: 0.03, alpha: 1),
+                checker: UIColor(red: 0.16, green: 0.08, blue: 0.04, alpha: 1),
+                obstacleColor: UIColor(red: 0.72, green: 0.42, blue: 0.18, alpha: 1),
+                obstacles: feastTables(), edges: .wrap,
+                availableFrom: SkinCatalog.date("2026-11-01"),
+                availableUntil: SkinCatalog.date("2026-12-07")),
     ]
+
+    /// Listed maps for the customize screen. Seasonal maps hide outside their
+    /// window unless the player already selected/owns them.
+    static func visible(owned: (GameMap) -> Bool, at date: Date = Date()) -> [GameMap] {
+        all.filter { $0.isAvailable(at: date) || owned($0) }
+    }
 
     static func map(id: String?) -> GameMap? { all.first { $0.id == id } }
 
@@ -196,10 +219,28 @@ enum MapCatalog {
         for x in 10..<15 { s.insert(GridCell(x, 27)) }
         return s
     }
+
+    /// Sparse "table" blocks for the Thanksgiving feast map — readable lanes,
+    /// warm autumn feel without cluttering the board.
+    private static func feastTables() -> Set<GridCell> {
+        var s = Set<GridCell>()
+        // Three short banquet tables.
+        for x in 3..<7 { s.insert(GridCell(x, 8)); s.insert(GridCell(x, 9)) }
+        for x in 11..<15 { s.insert(GridCell(x, 8)); s.insert(GridCell(x, 9)) }
+        for x in 6..<12 { s.insert(GridCell(x, 16)); s.insert(GridCell(x, 17)) }
+        for x in 3..<7 { s.insert(GridCell(x, 24)); s.insert(GridCell(x, 25)) }
+        for x in 11..<15 { s.insert(GridCell(x, 24)); s.insert(GridCell(x, 25)) }
+        // A couple of "corn" pillars as corners.
+        for (x, y) in [(2, 14), (15, 14), (2, 20), (15, 20)] {
+            s.insert(GridCell(x, y)); s.insert(GridCell(x, y + 1))
+        }
+        return s
+    }
 }
 
 enum Palette {
     static let paper = UIColor(red: 0.961, green: 0.953, blue: 0.937, alpha: 1)
     static let orange = UIColor(red: 1.0, green: 0.31, blue: 0.0, alpha: 1)
     static let blue = UIColor(red: 0.184, green: 0.357, blue: 1.0, alpha: 1)
+    static let autumn = UIColor(red: 0.72, green: 0.42, blue: 0.18, alpha: 1)
 }

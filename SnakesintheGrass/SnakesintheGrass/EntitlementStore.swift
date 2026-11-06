@@ -58,6 +58,9 @@ final class EntitlementStore {
 
     func isUnlocked(mapID: String) -> Bool {
         guard let map = MapCatalog.map(id: mapID) else { return false }
+        // Seasonal free maps hide outside their window (unless previously selected
+        // as the saved pick — still require availability for gameplay selection).
+        if !map.isAvailable() { return false }
         return isUnlocked(tier: map.tier, key: "map.\(mapID)")
     }
 
