@@ -12,6 +12,8 @@
 		319991362CAA41C100DAB94F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 319991352CAA41C100DAB94F /* Assets.xcassets */; };
 		319991392CAA41C100DAB94F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 319991382CAA41C100DAB94F /* Preview Assets.xcassets */; };
 		319991402CAA42F900DAB94F /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3199913F2CAA42F900DAB94F /* GameScene.swift */; };
+		F6C0FFEE0000001500000000 /* PauseControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6C0FFEE0000000500000000 /* PauseControl.swift */; };
+		A7C0FFEE0000001500000000 /* GameSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C0FFEE0000000500000000 /* GameSave.swift */; };
 		31B1ECAF2D161E66000C9C1D /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */; };
 		31F434EF2CEB440C00D39AF8 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F434EE2CEB440C00D39AF8 /* MainMenu.swift */; };
 		31F434F32CEB47A700D39AF8 /* GameCenterManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */; };
@@ -32,6 +34,7 @@
 		B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */; };
 		D4C0FFEE0000005000000000 /* OnlineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C0FFEE0000004000000000 /* OnlineTests.swift */; };
 		E5C0FFEE0000001400000000 /* MainMenuLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5C0FFEE0000000400000000 /* MainMenuLayoutTests.swift */; };
+		A7C0FFEE0000001600000000 /* GameSaveTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7C0FFEE0000000600000000 /* GameSaveTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +56,8 @@
 		319991352CAA41C100DAB94F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		319991382CAA41C100DAB94F /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		3199913F2CAA42F900DAB94F /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		F6C0FFEE0000000500000000 /* PauseControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PauseControl.swift; sourceTree = "<group>"; };
+		A7C0FFEE0000000500000000 /* GameSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSave.swift; sourceTree = "<group>"; };
 		31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		31F434EE2CEB440C00D39AF8 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameCenterManager.swift; sourceTree = "<group>"; };
@@ -74,6 +79,7 @@
 		B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoPlayerRulesTests.swift; sourceTree = "<group>"; };
 		D4C0FFEE0000004000000000 /* OnlineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineTests.swift; sourceTree = "<group>"; };
 		E5C0FFEE0000000400000000 /* MainMenuLayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenuLayoutTests.swift; sourceTree = "<group>"; };
+		A7C0FFEE0000000600000000 /* GameSaveTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameSaveTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +127,8 @@
 				319991312CAA41BE00DAB94F /* SnakesintheGrassApp.swift */,
 				319991332CAA41BE00DAB94F /* ContentView.swift */,
 				3199913F2CAA42F900DAB94F /* GameScene.swift */,
+				F6C0FFEE0000000500000000 /* PauseControl.swift */,
+				A7C0FFEE0000000500000000 /* GameSave.swift */,
 				31F434F22CEB47A700D39AF8 /* GameCenterManager.swift */,
 				31F434EE2CEB440C00D39AF8 /* MainMenu.swift */,
 				A1C0FFEE0000000300000000 /* CustomizeScene.swift */,
@@ -157,6 +165,7 @@
 				B2C0FFEE0000000400000000 /* TwoPlayerRulesTests.swift */,
 				D4C0FFEE0000004000000000 /* OnlineTests.swift */,
 				E5C0FFEE0000000400000000 /* MainMenuLayoutTests.swift */,
+				A7C0FFEE0000000600000000 /* GameSaveTests.swift */,
 			);
 			path = slymeTests;
 			sourceTree = "<group>";
@@ -264,6 +273,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				319991402CAA42F900DAB94F /* GameScene.swift in Sources */,
+				F6C0FFEE0000001500000000 /* PauseControl.swift in Sources */,
+				A7C0FFEE0000001500000000 /* GameSave.swift in Sources */,
 				319991342CAA41BE00DAB94F /* ContentView.swift in Sources */,
 				319991322CAA41BE00DAB94F /* SnakesintheGrassApp.swift in Sources */,
 				31F434F32CEB47A700D39AF8 /* GameCenterManager.swift in Sources */,
@@ -291,6 +302,7 @@
 				B2C0FFEE0000001300000000 /* TwoPlayerRulesTests.swift in Sources */,
 				D4C0FFEE0000005000000000 /* OnlineTests.swift in Sources */,
 				E5C0FFEE0000001400000000 /* MainMenuLayoutTests.swift in Sources */,
+				A7C0FFEE0000001600000000 /* GameSaveTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

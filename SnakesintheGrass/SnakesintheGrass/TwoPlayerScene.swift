@@ -35,7 +35,7 @@ final class TwoPlayerScene: SKScene {
     private var scoreLabels: [SKLabelNode] = []
     private let speedLabel = SKLabelNode(fontNamed: "CourierNewPS-BoldMT")
     private var padNodes: [SKShapeNode] = []
-    private var pauseButton: SKSpriteNode?
+    private var pauseButton: SKNode?
     private var appleNode: SKSpriteNode?
     private var overlay: SKNode?
 
@@ -82,9 +82,7 @@ final class TwoPlayerScene: SKScene {
         speedLabel.verticalAlignmentMode = .center
         speedLabel.zPosition = 20
         addChild(speedLabel)
-        let pb = SKSpriteNode(imageNamed: "pause")
-        pb.size = CGSize(width: 36, height: 36)
-        pb.name = "pauseButton"; pb.zPosition = 30
+        let pb = PauseControl.make(playing: false, at: .zero)
         addChild(pb); pauseButton = pb
         relayout()
         installHingeObserver(on: view)
@@ -323,7 +321,10 @@ final class TwoPlayerScene: SKScene {
     private func setPaused(_ on: Bool) {
         guard match.result == nil, on != paused2P else { return }
         paused2P = on
-        pauseButton?.texture = SKTexture(imageNamed: on ? "play" : "pause")
+        let pos = pauseButton?.position ?? .zero
+        pauseButton?.removeFromParent()
+        let pb = PauseControl.make(playing: on, at: pos)
+        addChild(pb); pauseButton = pb
         overlay?.removeFromParent(); overlay = nil
         if on { showPause() } else { started = false }
     }
@@ -383,7 +384,11 @@ final class TwoPlayerScene: SKScene {
         match = VersusMatch(board: board, p1: a, p2: b)
         overlay?.removeFromParent(); overlay = nil
         paused2P = false; started = false
-        pauseButton?.texture = SKTexture(imageNamed: "pause")
+        if let pos = pauseButton?.position {
+            pauseButton?.removeFromParent()
+            let pb = PauseControl.make(playing: false, at: pos)
+            addChild(pb); pauseButton = pb
+        }
         tracked.removeAll()
         render()
     }
