@@ -46,7 +46,7 @@ final class GameSaveTests: XCTestCase {
     func testFeastMapIsSeasonalFree() throws {
         let feast = try XCTUnwrap(MapCatalog.map(id: "feast"))
         XCTAssertEqual(feast.tier, .free)
-        XCTAssertFalse(feast.obstacles.isEmpty)
+        XCTAssertTrue(feast.obstacles.isEmpty) // open warm-brown board, like void
         let inSeason = SkinCatalog.date("2026-11-20")!
         let offSeason = SkinCatalog.date("2026-07-01")!
         XCTAssertTrue(feast.isAvailable(at: inSeason))
