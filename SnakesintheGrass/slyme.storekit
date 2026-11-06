@@ -63,6 +63,21 @@
       "type": "NonConsumable"
     },
     {
+      "displayPrice": "0.99",
+      "familyShareable": false,
+      "internalID": "6700000011",
+      "localizations": [
+        {
+          "description": "Bright pink snake skin.",
+          "displayName": "pink skin",
+          "locale": "en_US"
+        }
+      ],
+      "productID": "com.ysdwysd.skin.pink",
+      "referenceName": "pink skin",
+      "type": "NonConsumable"
+    },
+    {
       "displayPrice": "1.99",
       "familyShareable": false,
       "internalID": "6700000004",
