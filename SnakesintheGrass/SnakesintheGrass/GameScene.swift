@@ -24,20 +24,20 @@ class GameScene: SKScene {
     private var foodCell: (Int, Int)?
     private var moveDirection: CGVector = CGVector(dx: 1, dy: 0)
     private var nextMoveTime: TimeInterval = 0
-    private var moveSpeed: TimeInterval = 0.1
+    private var moveSpeed: TimeInterval = 0.13
     private var score: Int = 0
     private var scoreLabel: SKLabelNode?
 
     private var saveMessageLabel: SKLabelNode?
 
     private var level: Int = 1
-    private var baseSpeed: TimeInterval = 0.1
+    private var baseSpeed: TimeInterval = 0.13
     private let speedIncreaseFactor: Double = 0.85
 
     private let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .rigid)
     private let notificationFeedbackGenerator = UINotificationFeedbackGenerator()
 
-    private var pauseButton: SKSpriteNode?
+    private var pauseButton: SKNode?
     private var gameTimer: Timer?
     private var startTime: TimeInterval = 0
     private var elapsedTime: TimeInterval = 0
@@ -409,19 +409,17 @@ class GameScene: SKScene {
         return String(format: "%02d:%02d.%03d", minutes, seconds, milliseconds)
     }
 
-    private func makePauseButton(imageNamed name: String) {
+    private func makePauseButton(playing: Bool) {
         let previous = pauseButton?.position
+            ?? CGPoint(x: hudRect.maxX - 36, y: hudRect.maxY - 36)
         pauseButton?.removeFromParent()
-        let button = SKSpriteNode(imageNamed: name)
-        button.position = previous ?? CGPoint(x: hudRect.maxX - 36, y: hudRect.maxY - 36)
-        button.name = "pauseButton"
-        button.size = CGSize(width: 40, height: 40)
-        button.zPosition = 10
+        // playing == true means the game is paused, so show the play triangle.
+        let button = PauseControl.make(playing: playing, at: previous)
         addChild(button)
         pauseButton = button
     }
 
-    private func setupPauseButton() { makePauseButton(imageNamed: "pause") }
+    private func setupPauseButton() { makePauseButton(playing: false) }
 
     private func setupQuitButton() {
         guard childNode(withName: "quitLabel") == nil else { return }
@@ -455,7 +453,8 @@ class GameScene: SKScene {
         isPausedGame = true
         self.isPaused = true
         stopClock()
-        makePauseButton(imageNamed: "play")
+        saveGameState()   // pause always checkpoints so quit / background can't lose the run
+        makePauseButton(playing: true)
 
         if childNode(withName: "pausedLabel") == nil {
             let pausedLabel = SKLabelNode(text: "PAUSE")
@@ -492,7 +491,7 @@ class GameScene: SKScene {
     }
 
     private func resumeGame() {
-        makePauseButton(imageNamed: "pause")
+        makePauseButton(playing: false)
         isPausedGame = false
         self.isPaused = false
         startTime = 0 // re-anchor the clock so paused time isn't counted
@@ -664,69 +663,40 @@ class GameScene: SKScene {
 
     public func saveGameState() {
         guard !isGameOver, !snake.isEmpty else { return }
-        var gameState: [String: Any] = [
-            "version": GameScene.saveVersion,
-            "columns": gridWidth,
-            "rows": gridHeight,
-            "score": score,
-            "level": level,
-            "snake": snake.map { ["x": $0.0, "y": $0.1] },
-            "moveDirection": ["dx": Double(moveDirection.dx), "dy": Double(moveDirection.dy)],
-            "elapsedTime": elapsedTime,
-            "skin": skin.id,
-            "map": map.id
-        ]
-        if let f = foodCell { gameState["food"] = ["x": f.0, "y": f.1] }
-        UserDefaults.standard.set(gameState, forKey: "savedGameState")
+        let save = GameSave(score: score, level: level, snake: snake, moveDirection: moveDirection,
+                            elapsedTime: elapsedTime, skinID: skin.id, mapID: map.id,
+                            food: foodCell, columns: gridWidth, rows: gridHeight)
+        UserDefaults.standard.set(save.encode(), forKey: GameSave.key)
     }
 
     /// Restore a saved run. Anything from an older version, a different grid,
     /// or out of bounds is discarded instead of risking a crash or a bad board.
     public func loadGameState() {
-        guard let state = UserDefaults.standard.dictionary(forKey: "savedGameState") else { return }
-        guard state["version"] as? Int == GameScene.saveVersion,
-              state["columns"] as? Int == gridWidth,
-              state["rows"] as? Int == gridHeight,
-              let raw = state["snake"] as? [[String: Int]], !raw.isEmpty else {
-            resetSavedGameState()
-            return
-        }
-        let cells = raw.compactMap { d -> (Int, Int)? in
-            guard let x = d["x"], let y = d["y"] else { return nil }
-            return (x, y)
-        }
-        // Resume on the map the run started on if it's still available,
-        // otherwise the current selection; either way, validate against it.
+        guard let state = UserDefaults.standard.dictionary(forKey: GameSave.key) else { return }
+        // Prefer the map/skin the run started on if still unlocked.
         if let id = state["map"] as? String, let saved = MapCatalog.map(id: id),
            EntitlementStore.shared.isUnlocked(mapID: id) {
             map = saved
         }
-        let inBounds = cells.allSatisfy { (0..<gridWidth).contains($0.0) && (0..<gridHeight).contains($0.1) }
-        let unique = Set(cells.map { $0.0 * 10_000 + $0.1 }).count == cells.count
-        let clear = !cells.contains { isBlocked($0) }
-        guard cells.count == raw.count, inBounds, unique, clear else {
+        if let id = state["skin"] as? String, let saved = SkinCatalog.skin(id: id),
+           EntitlementStore.shared.isUnlocked(skinID: id) {
+            skin = saved
+        }
+        guard let save = GameSave.decode(state, columns: gridWidth, rows: gridHeight,
+                                         blocked: { x, y in isBlocked((x, y)) }) else {
             map = EntitlementStore.shared.selectedMap
+            skin = EntitlementStore.shared.selectedSkin
             resetSavedGameState()
             return
         }
-
-        snake = cells
-        score = max(0, state["score"] as? Int ?? 0)
-        level = max(1, state["level"] as? Int ?? 1)
-        elapsedTime = max(0, state["elapsedTime"] as? TimeInterval ?? 0)
+        snake = save.snake
+        score = save.score
+        level = save.level
+        elapsedTime = save.elapsedTime
         startTime = 0
+        moveDirection = save.moveDirection
         updateSpeedForLevel()
-        if let d = state["moveDirection"] as? [String: Double],
-           let dx = d["dx"], let dy = d["dy"], abs(dx) + abs(dy) == 1 {
-            moveDirection = CGVector(dx: dx, dy: dy)
-        }
-        if let f = state["food"] as? [String: Int], let x = f["x"], let y = f["y"],
-           (0..<gridWidth).contains(x), (0..<gridHeight).contains(y),
-           !snake.contains(where: { $0 == (x, y) }), !isBlocked((x, y)) {
-            placeFood(at: (x, y))
-        } else {
-            spawnFood()
-        }
+        if let f = save.food { placeFood(at: f) } else { spawnFood() }
         scoreLabel?.text = "Score: \(score) | Level: \(level)"
         clockLabel?.text = format(timeInterval: elapsedTime)
         drawMap()
@@ -734,7 +704,7 @@ class GameScene: SKScene {
     }
 
     private func resetSavedGameState() {
-        UserDefaults.standard.removeObject(forKey: "savedGameState")
+        UserDefaults.standard.removeObject(forKey: GameSave.key)
     }
 
     /// Internal (not private) so TwoPlayerScene reuses the same texture picking.

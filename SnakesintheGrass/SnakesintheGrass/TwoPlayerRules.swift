@@ -14,7 +14,7 @@ enum TwoPlayerConfig {
     /// First to this many apples wins the match.
     static var applesToWin = 10
     /// Seconds per move at the start of a match. Both snakes always share one tick.
-    static var tickInterval: TimeInterval = 0.12
+    static var tickInterval: TimeInterval = 0.15
     /// Speed-up: every `applesPerSpeedUp` apples eaten (both players combined)
     /// the tick shrinks by `speedUpStep`, never below `minTickInterval`.
     static var applesPerSpeedUp = 3
