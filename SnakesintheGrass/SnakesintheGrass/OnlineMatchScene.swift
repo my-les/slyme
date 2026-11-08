@@ -117,7 +117,11 @@ final class OnlineMatchScene: SKScene {
         guard hingeInteraction == nil else { return }
         if #available(iOS 27.1, *) {
             let i = UIHingeInteraction { [weak self] _, _ in
-                self?.relayout(); DispatchQueue.main.async { self?.relayout() }
+                self?.relayout()
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(for: .milliseconds(16))
+                    self?.relayout()
+                }
             }
             view.addInteraction(i); hingeInteraction = i
         }

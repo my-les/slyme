@@ -83,6 +83,11 @@ class GameScene: SKScene {
                        name: UIScene.willDeactivateNotification, object: nil)
         nc.addObserver(self, selector: #selector(appDidBecomeActive),
                        name: UIScene.didActivateNotification, object: nil)
+        
+        // Preload textures for current skin to ensure smooth gameplay
+        Task {
+            await TextureCache.shared.preloadSkinTextures(for: skin)
+        }
     }
 
     override func willMove(from view: SKView) {
@@ -131,7 +136,10 @@ class GameScene: SKScene {
             let interaction = UIHingeInteraction { [weak self] _, _ in
                 // Region geometry settles after the hinge update; re-query next runloop too.
                 self?.relayoutIfNeeded()
-                DispatchQueue.main.async { self?.relayoutIfNeeded() }
+                Task { @MainActor [weak self] in
+                    try? await Task.sleep(for: .milliseconds(16))
+                    self?.relayoutIfNeeded()
+                }
             }
             view.addInteraction(interaction)
             hingeInteraction = interaction
@@ -375,7 +383,8 @@ class GameScene: SKScene {
 
     private func placeFood(at cell: (Int, Int)) {
         food?.removeFromParent()
-        let node = SKSpriteNode(texture: SKTexture(imageNamed: "apple"),
+        let texture = TextureCache.shared.texture(named: "apple")
+        let node = SKSpriteNode(texture: texture,
                                 size: CGSize(width: cellSize, height: cellSize))
         node.position = point(for: cell)
         addChild(node)
@@ -640,7 +649,13 @@ class GameScene: SKScene {
     }
 
     private func updateSnakeDisplay() {
-        children.filter { $0.name == "snakeSegment" }.forEach { $0.removeFromParent() }
+        let existingSegments = children.filter { $0.name == "snakeSegment" }
+        
+        // Remove excess segments if snake got shorter (rare: only on load)
+        if existingSegments.count > snake.count {
+            existingSegments.suffix(existingSegments.count - snake.count).forEach { $0.removeFromParent() }
+        }
+        
         for (index, currentPosition) in snake.enumerated() {
             let previousPosition = index > 0 ? snake[index - 1] : nil
             let nextPosition = index < snake.count - 1 ? snake[index + 1] : nil
@@ -651,11 +666,23 @@ class GameScene: SKScene {
                 nextPosition: nextPosition,
                 moveDirection: moveDirection
             )
-            let node = skin.makeSegment(textureName: textureName, isHead: index == 0,
-                                        size: CGSize(width: cellSize, height: cellSize))
-            node.position = point(for: currentPosition)
-            node.name = "snakeSegment"
-            addChild(node)
+            
+            let targetPosition = point(for: currentPosition)
+            
+            // Reuse existing segment if available, otherwise create new
+            if index < existingSegments.count, let segment = existingSegments[index] as? SKSpriteNode {
+                // Update existing segment
+                let texture = TextureCache.shared.texture(named: skin.textureName(for: textureName))
+                segment.texture = texture
+                segment.position = targetPosition
+            } else {
+                // Create new segment (snake grew)
+                let node = skin.makeSegment(textureName: textureName, isHead: index == 0,
+                                            size: CGSize(width: cellSize, height: cellSize))
+                node.position = targetPosition
+                node.name = "snakeSegment"
+                addChild(node)
+            }
         }
     }
 
