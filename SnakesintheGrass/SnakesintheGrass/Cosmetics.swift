@@ -94,6 +94,7 @@ enum SkinCatalog {
         Skin(id: "gold", name: "gold", tier: .premium, previewColor: UIColor(red: 0.88, green: 0.66, blue: 0.18, alpha: 1)),
         Skin(id: "ghost", name: "ghost", tier: .premium, previewColor: UIColor(white: 0.9, alpha: 0.6)),
         Skin(id: "indigo", name: "indigo", tier: .premium, previewColor: UIColor(red: 0.345, green: 0.337, blue: 0.839, alpha: 1)),
+        Skin(id: "pink", name: "pink", tier: .premium, previewColor: UIColor(red: 1.0, green: 0.45, blue: 0.75, alpha: 1)),
     ]
 
     /// Skins shown in the customize screen right now: in-window, or already owned.

@@ -6,6 +6,7 @@
     {"id": "duo",    "body": "#00A8FF"},
     {"id": "gold",   "body": "#E0A82E"},
     {"id": "ghost",  "body": "#E6ECF2", "light": true, "alpha": 0.6},
-    {"id": "indigo", "body": "#5856D6"}
+    {"id": "indigo", "body": "#5856D6"},
+    {"id": "pink",   "body": "#FF73BF"}
   ]
 }
