@@ -38,6 +38,7 @@ final class OnlineMatchScene: SKScene {
     private let impact = UIImpactFeedbackGenerator(style: .rigid)
     private let notify = UINotificationFeedbackGenerator()
     private var lastApples = 0
+    private var matchRecorded = false  // Ensures match is counted exactly once
 
     #if DEBUG
     /// Loopback demo: the opponent (and optionally you) driven by a bot.
@@ -304,8 +305,9 @@ final class OnlineMatchScene: SKScene {
     
     /// Record match outcome for stats tracking and leaderboard submission
     private func recordMatchOutcome(_ end: OnlineEnd) {
-        // Generate unique match ID from session nonce and timestamp
-        let matchID = "\(session.role)_\(session.state?.nonce ?? 0)_\(Int(Date().timeIntervalSince1970))"
+        // Only record once per scene instance
+        guard !matchRecorded else { return }
+        matchRecorded = true
         
         let outcome: MatchOutcome
         switch end {
@@ -322,9 +324,7 @@ final class OnlineMatchScene: SKScene {
         }
         
         let stats = OnlineStats.shared
-        guard stats.recordMatch(id: matchID, outcome: outcome) else {
-            return  // Already recorded
-        }
+        stats.recordMatch(outcome: outcome)
         
         // Submit wins to Game Center leaderboard
         if outcome == .win {
