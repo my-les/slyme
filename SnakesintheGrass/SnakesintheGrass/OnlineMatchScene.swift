@@ -38,6 +38,7 @@ final class OnlineMatchScene: SKScene {
     private let impact = UIImpactFeedbackGenerator(style: .rigid)
     private let notify = UINotificationFeedbackGenerator()
     private var lastApples = 0
+    private var matchRecorded = false  // Ensures match is counted exactly once
 
     #if DEBUG
     /// Loopback demo: the opponent (and optionally you) driven by a bot.
@@ -298,7 +299,39 @@ final class OnlineMatchScene: SKScene {
         default: break
         }
         notify.notificationOccurred(won ? .success : .error)
+        recordMatchOutcome(e)
         rebuildOverlay()
+    }
+    
+    /// Record match outcome for stats tracking and leaderboard submission
+    private func recordMatchOutcome(_ end: OnlineEnd) {
+        // Only record once per scene instance
+        guard !matchRecorded else { return }
+        matchRecorded = true
+        
+        let outcome: MatchOutcome
+        switch end {
+        case .match(.winner(let p, _)):
+            outcome = p == session.me ? .win : .loss
+        case .opponentLeft, .opponentForfeited:
+            outcome = .win
+        case .youForfeited:
+            outcome = .loss
+        case .match(.draw):
+            outcome = .draw
+        case .versionMismatch:
+            return  // Don't count version mismatch
+        }
+        
+        let stats = OnlineStats.shared
+        stats.recordMatch(outcome: outcome)
+        
+        // Submit wins to Game Center leaderboard
+        if outcome == .win {
+            Task {
+                await GameCenterManager.shared.submitOnlineWins(stats.wins)
+            }
+        }
     }
 
     private func statusChanged() { updatePing(); rebuildOverlay() }
