@@ -1,12 +1,13 @@
 import SwiftUI
 import GameKit
 
-/// Game Center wrapper. slyme has exactly one leaderboard: best score.
+/// Game Center wrapper. Manages single-player best score and online wins leaderboards.
 final class GameCenterManager: NSObject, GKGameCenterControllerDelegate, ObservableObject {
     static let shared = GameCenterManager()
 
-    /// Must match the leaderboard's Leaderboard ID in App Store Connect.
+    /// Must match the leaderboard IDs in App Store Connect.
     let bestScoreLeaderboardID = "555"
+    let onlineWinsLeaderboardID = "com.ysdwysd.online.wins"
 
     private let localBestKey = "localBestScore"
 
@@ -63,6 +64,32 @@ final class GameCenterManager: NSObject, GKGameCenterControllerDelegate, Observa
                                             timeScope: .allTime)
         vc.gameCenterDelegate = self
         topViewController?.present(vc, animated: true)
+    }
+    
+    /// Opens the online wins leaderboard.
+    func showOnlineLeaderboard() {
+        guard GKLocalPlayer.local.isAuthenticated else { return }
+        let vc = GKGameCenterViewController(leaderboardID: onlineWinsLeaderboardID,
+                                            playerScope: .global,
+                                            timeScope: .allTime)
+        vc.gameCenterDelegate = self
+        topViewController?.present(vc, animated: true)
+    }
+    
+    /// Submit online wins to Game Center. Called after recording each match.
+    func submitOnlineWins(_ wins: Int) async {
+        guard wins > 0, GKLocalPlayer.local.isAuthenticated else { return }
+        
+        do {
+            try await GKLeaderboard.submitScore(
+                wins,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [onlineWinsLeaderboardID]
+            )
+        } catch {
+            print("Error submitting online wins: \(error.localizedDescription)")
+        }
     }
 
     func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {

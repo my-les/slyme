@@ -298,7 +298,40 @@ final class OnlineMatchScene: SKScene {
         default: break
         }
         notify.notificationOccurred(won ? .success : .error)
+        recordMatchOutcome(e)
         rebuildOverlay()
+    }
+    
+    /// Record match outcome for stats tracking and leaderboard submission
+    private func recordMatchOutcome(_ end: OnlineEnd) {
+        // Generate unique match ID from session nonce and timestamp
+        let matchID = "\(session.role)_\(session.state?.nonce ?? 0)_\(Int(Date().timeIntervalSince1970))"
+        
+        let outcome: MatchOutcome
+        switch end {
+        case .match(.winner(let p, _)):
+            outcome = p == session.me ? .win : .loss
+        case .opponentLeft, .opponentForfeited:
+            outcome = .win
+        case .youForfeited:
+            outcome = .loss
+        case .match(.draw):
+            outcome = .draw
+        case .versionMismatch:
+            return  // Don't count version mismatch
+        }
+        
+        let stats = OnlineStats.shared
+        guard stats.recordMatch(id: matchID, outcome: outcome) else {
+            return  // Already recorded
+        }
+        
+        // Submit wins to Game Center leaderboard
+        if outcome == .win {
+            Task {
+                await GameCenterManager.shared.submitOnlineWins(stats.wins)
+            }
+        }
     }
 
     private func statusChanged() { updatePing(); rebuildOverlay() }

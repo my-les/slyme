@@ -84,6 +84,14 @@ final class OnlineLobbyScene: SKScene {
         label("online", 30, .systemIndigo, CGPoint(x: cx, y: cy + 230))
         label("you vs one player. same board. same apple. free.", 12, .gray, CGPoint(x: cx, y: cy + 200))
 
+        // Stats
+        let stats = OnlineStats.shared
+        if stats.totalMatches > 0 {
+            let record = "\(stats.wins)–\(stats.losses)" + (stats.draws > 0 ? "–\(stats.draws)" : "")
+            let rate = String(format: "%.0f%%", stats.winRate)
+            label("record  \(record)  ·  \(rate) win rate", 12, UIColor(white: 1, alpha: 0.5), CGPoint(x: cx, y: cy + 170))
+        }
+
         let skin = store.selectedSkin
         let head = SKSpriteNode(texture: SKTexture(imageNamed: skin.textureName(for: "head_right")),
                                 size: CGSize(width: 34, height: 34))
@@ -108,10 +116,16 @@ final class OnlineLobbyScene: SKScene {
         label("find match", 22, canPlay ? .white : UIColor(white: 1, alpha: 0.2), CGPoint(x: cx, y: cy - 80),
               name: canPlay ? "find" : nil)
         label("quick match or invite a friend", 11, .darkGray, CGPoint(x: cx, y: cy - 105))
-        if status == .signedOut {
-            label("try again", 16, .lightGray, CGPoint(x: cx, y: cy - 150), name: "retry")
+        
+        // Leaderboard button (only if authenticated)
+        if GKLocalPlayer.local.isAuthenticated {
+            label("leaderboard", 16, .lightGray, CGPoint(x: cx, y: cy - 145), name: "leaderboard")
         }
-        label("back", 18, .darkGray, CGPoint(x: cx, y: cy - 200), name: "back")
+        
+        if status == .signedOut {
+            label("try again", 16, .lightGray, CGPoint(x: cx, y: cy - 175), name: "retry")
+        }
+        label("back", 18, .darkGray, CGPoint(x: cx, y: cy - 210), name: "back")
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -119,6 +133,7 @@ final class OnlineLobbyScene: SKScene {
         for node in nodes(at: t.location(in: self)) {
             switch node.name {
             case "find": OnlineMatchmaker.shared.presentMatchmaker(); return
+            case "leaderboard": GameCenterManager.shared.showOnlineLeaderboard(); return
             case "retry":
                 setStatus(GKLocalPlayer.local.isAuthenticated ? .ready : .signedOut); return
             case "back":
