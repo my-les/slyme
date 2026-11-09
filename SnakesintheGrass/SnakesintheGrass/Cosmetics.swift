@@ -68,7 +68,8 @@ struct Skin: Identifiable, Equatable {
 
     /// Build one segment node for this skin.
     func makeSegment(textureName piece: String, isHead: Bool, size: CGSize) -> SKSpriteNode {
-        SKSpriteNode(texture: SKTexture(imageNamed: textureName(for: piece)), size: size)
+        let texture = TextureCache.shared.texture(named: textureName(for: piece))
+        return SKSpriteNode(texture: texture, size: size)
     }
 }
 

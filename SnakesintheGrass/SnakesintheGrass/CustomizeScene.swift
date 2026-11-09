@@ -47,13 +47,15 @@ final class CustomizeScene: SKScene {
             size = b
         }
         build()
-        DispatchQueue.main.async { [weak self] in
+        // Single deferred layout adjustment instead of immediate double-build
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(16))
             guard let self, let v = self.view else { return }
             let b = v.bounds.size
             if b.width > 1, b.height > 1, (abs(b.width - self.size.width) > 0.5 || abs(b.height - self.size.height) > 0.5) {
                 self.size = b
+                self.build()
             }
-            self.build()
         }
     }
 
@@ -78,13 +80,15 @@ final class CustomizeScene: SKScene {
             }
         }
         build()
-        DispatchQueue.main.async { [weak self] in
+        // Deferred rebuild for safe area inset settling
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(16))
             guard let self, self.layoutGeneration == gen, let v = self.view else { return }
             let b = v.bounds.size
             if b.width > 1, b.height > 1, (abs(b.width - self.size.width) > 0.5 || abs(b.height - self.size.height) > 0.5) {
                 self.size = b
+                self.build()
             }
-            self.build()
         }
     }
 

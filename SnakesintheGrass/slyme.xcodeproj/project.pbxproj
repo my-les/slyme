@@ -21,6 +21,7 @@
 		A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000200000000 /* EntitlementStore.swift */; };
 		A1C0FFEE0000001300000000 /* CustomizeScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000300000000 /* CustomizeScene.swift */; };
 		A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000400000000 /* StoreManager.swift */; };
+		A1C0FFEE0000001700000000 /* TextureCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000700000000 /* TextureCache.swift */; };
 		B2C0FFEE0000001100000000 /* StoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000100000000 /* StoreTests.swift */; };
 		B2C0FFEE0000001200000000 /* slyme.storekit in Resources */ = {isa = PBXBuildFile; fileRef = B2C0FFEE0000000200000000 /* slyme.storekit */; };
 		A1C0FFEE0000001500000000 /* TwoPlayerRules.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0FFEE0000000500000000 /* TwoPlayerRules.swift */; };
@@ -66,6 +67,7 @@
 		A1C0FFEE0000000200000000 /* EntitlementStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntitlementStore.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000300000000 /* CustomizeScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizeScene.swift; sourceTree = "<group>"; };
 		A1C0FFEE0000000400000000 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
+		A1C0FFEE0000000700000000 /* TextureCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextureCache.swift; sourceTree = "<group>"; };
 		B2C0FFEE0000000100000000 /* StoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTests.swift; sourceTree = "<group>"; };
 		B2C0FFEE0000000200000000 /* slyme.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = slyme.storekit; sourceTree = "<group>"; };
 		B2C0FFEE0000000300000000 /* slymeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = slymeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -146,6 +148,7 @@
 				A1C0FFEE0000000200000000 /* EntitlementStore.swift */,
 				A1C0FFEE0000000400000000 /* StoreManager.swift */,
 				A1C0FFEE0000000100000000 /* Cosmetics.swift */,
+				A1C0FFEE0000000700000000 /* TextureCache.swift */,
 				31B1ECAE2D161E65000C9C1D /* Launch Screen.storyboard */,
 				319991352CAA41C100DAB94F /* Assets.xcassets */,
 				319991372CAA41C100DAB94F /* Preview Content */,
@@ -295,6 +298,7 @@
 				A1C0FFEE0000001200000000 /* EntitlementStore.swift in Sources */,
 				A1C0FFEE0000001400000000 /* StoreManager.swift in Sources */,
 				A1C0FFEE0000001100000000 /* Cosmetics.swift in Sources */,
+				A1C0FFEE0000001700000000 /* TextureCache.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

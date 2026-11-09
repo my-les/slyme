@@ -44,7 +44,9 @@ class MainMenu: SKScene {
         let gen = layoutGeneration
         if let v = view { syncSize(from: v) }
         layoutMenu()
-        DispatchQueue.main.async { [weak self] in
+        // Deferred rebuild for safe area inset settling
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(16))
             guard let self, self.layoutGeneration == gen, let v = self.view else { return }
             self.syncSize(from: v)
             self.layoutMenu()
